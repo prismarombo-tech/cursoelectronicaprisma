@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#17153b" />
+  <title>ElectroQuest · Aprende electricidad jugando</title>
+  <style>
+    :root {
+      --bg: #0d1028;
+      --panel: rgba(24, 27, 66, 0.92);
+      --panel-2: rgba(40, 45, 94, 0.8);
+      --text: #f7f8ff;
+      --muted: #b7bdd9;
+      --cyan: #46e6ff;
+      --yellow: #ffd84d;
+      --green: #63ef9d;
+      --red: #ff6b7a;
+      --purple: #a987ff;
+      --orange: #ff9e52;
+      --shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, ui-rounded, "Segoe UI", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(70, 230, 255, .18), transparent 28%),
+        radial-gradient(circle at 88% 14%, rgba(169, 135, 255, .18), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(255, 216, 77, .10), transparent 34%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .22;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .hidden { display: none !important; }
+
+    .app-shell { width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 20px 0 48px; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 0 22px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: .3px; }
+    .brand-mark {
+      width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center;
+      color: #11142f; font-size: 27px;
+      background: linear-gradient(145deg, var(--yellow), var(--orange));
+      box-shadow: 0 10px 30px rgba(255, 216, 77, .24);
+      transform: rotate(-4deg);
+    }
+    .brand small { display: block; color: var(--cyan); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 999px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.10);
+    }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--purple); color: #10132d; font-weight: 900; }
+
+    .card {
+      background: linear-gradient(165deg, rgba(35,39,85,.97), rgba(17,20,54,.94));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .login-wrap {
+      min-height: calc(100vh - 110px);
+      display: grid;
+      grid-template-columns: 1.12fr .88fr;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .hero { padding: 38px; position: relative; overflow: hidden; }
+    .hero::after {
+      content: "⚡"; position: absolute; right: -10px; bottom: -52px; font-size: 220px; opacity: .07; transform: rotate(-12deg);
+    }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--cyan); font-weight: 800; text-transform: uppercase; letter-spacing: 1.4px; font-size: 12px; }
+    h1 { margin: 12px 0 16px; font-size: clamp(42px, 7vw, 78px); line-height: .97; letter-spacing: -3px; }
+    .gradient-text { background: linear-gradient(90deg, var(--cyan), var(--yellow)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p { max-width: 650px; color: var(--muted); font-size: 18px; line-height: 1.65; }
+    .feature-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+    .feature { padding: 16px; border-radius: 17px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
+    .feature strong { display: block; font-size: 22px; color: var(--yellow); }
+    .feature span { color: var(--muted); font-size: 13px; }
+
+    .login-card { padding: 28px; }
+    .login-card h2 { margin: 0 0 8px; font-size: 28px; }
+    .login-card > p { margin-top: 0; color: var(--muted); }
+    .field { margin-top: 15px; }
+    .field label { display: block; margin-bottom: 7px; color: #dce0f5; font-weight: 700; font-size: 13px; }
+    .field input, .field select {
+      width: 100%; border: 1px solid rgba(255,255,255,.12); outline: none; color: white;
+      background: rgba(7,10,32,.56); border-radius: 14px; padding: 13px 14px;
+      transition: .2s ease;
+    }
+    .field input:focus, .field select:focus { border-color: var(--cyan); box-shadow: 0 0 0 4px rgba(70,230,255,.12); }
+    option { color: #111; }
+
+    .primary-btn, .secondary-btn, .ghost-btn, .danger-btn {
+      border: 0; border-radius: 14px; padding: 13px 17px; font-weight: 900; transition: transform .16s ease, filter .16s ease;
+    }
+    .primary-btn:hover, .secondary-btn:hover, .ghost-btn:hover, .danger-btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .primary-btn { width: 100%; margin-top: 20px; background: linear-gradient(90deg, var(--yellow), var(--orange)); color: #18182c; box-shadow: 0 12px 28px rgba(255,158,82,.22); }
+    .secondary-btn { background: linear-gradient(90deg, var(--cyan), #78a9ff); color: #10142e; }
+    .ghost-btn { background: rgba(255,255,255,.07); color: white; border: 1px solid rgba(255,255,255,.12); }
+    .danger-btn { background: rgba(255,107,122,.16); color: #ffacb5; border: 1px solid rgba(255,107,122,.26); }
+    .mini-note { margin: 14px 0 0; color: #949bbb; font-size: 12px; line-height: 1.55; }
+    .login-error { min-height: 20px; margin-top: 10px; color: var(--red); font-size: 13px; }
+
+    .dashboard-grid { display: grid; grid-template-columns: 1.6fr .8fr; gap: 20px; }
+    .welcome-card { padding: 26px; position: relative; overflow: hidden; }
+    .welcome-card h2 { margin: 4px 0 6px; font-size: 34px; }
+    .welcome-card p { color: var(--muted); margin: 0; }
+    .level-badge { display: inline-flex; padding: 7px 11px; border-radius: 999px; background: rgba(99,239,157,.13); color: var(--green); font-weight: 900; font-size: 12px; }
+    .xp-bar { margin-top: 22px; height: 13px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; }
+    .xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan), var(--green)); border-radius: inherit; transition: width .5s ease; }
+    .xp-label { display: flex; justify-content: space-between; color: var(--muted); margin-top: 7px; font-size: 12px; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+    .stat { border-radius: 16px; padding: 14px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.07); }
+    .stat span { display: block; color: var(--muted); font-size: 12px; }
+    .stat strong { display: block; margin-top: 4px; font-size: 24px; }
+
+    .side-card { padding: 22px; }
+    .side-card h3 { margin: 0 0 14px; }
+    .rank-list { display: grid; gap: 8px; }
+    .rank-row { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; padding: 10px; border-radius: 13px; background: rgba(255,255,255,.05); }
+    .rank-row.me { outline: 1px solid var(--cyan); background: rgba(70,230,255,.08); }
+    .medal { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-weight: 900; background: rgba(255,255,255,.08); }
+    .rank-row small { color: var(--muted); display: block; }
+    .rank-row strong:last-child { color: var(--yellow); }
+
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin: 28px 0 14px; }
+    .section-head h3 { margin: 0; font-size: 25px; }
+    .section-head p { margin: 4px 0 0; color: var(--muted); }
+
+    .mission-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .mission {
+      position: relative; padding: 18px; min-height: 185px; overflow: hidden;
+      background: linear-gradient(150deg, rgba(40,45,94,.95), rgba(20,23,58,.95));
+      border: 1px solid rgba(255,255,255,.09); border-radius: 20px; transition: .18s ease;
+    }
+    .mission:not(.locked):hover { transform: translateY(-4px); border-color: rgba(70,230,255,.42); }
+    .mission.locked { opacity: .48; filter: grayscale(.45); }
+    .mission.completed { border-color: rgba(99,239,157,.42); }
+    .mission-number { position: absolute; right: 14px; top: 10px; color: rgba(255,255,255,.13); font-weight: 950; font-size: 46px; }
+    .mission-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 15px; font-size: 25px; background: rgba(70,230,255,.11); }
+    .mission h4 { margin: 14px 0 7px; font-size: 18px; }
+    .mission p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .mission-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+    .mission-status { font-size: 12px; color: var(--yellow); font-weight: 800; }
+    .mission button { padding: 8px 12px; border: 0; border-radius: 11px; font-weight: 900; background: rgba(255,255,255,.09); color: white; }
+    .mission.final-challenge {
+      grid-column: 1 / -1; min-height: 205px;
+      background:
+        radial-gradient(circle at 88% 25%, rgba(255,216,77,.22), transparent 30%),
+        linear-gradient(135deg, rgba(79,49,126,.97), rgba(20,23,58,.98));
+      border-color: rgba(255,216,77,.38);
+    }
+    .mission.final-challenge .mission-icon { background: rgba(255,216,77,.17); }
+    .mission.final-challenge:not(.locked):hover { border-color: var(--yellow); box-shadow: 0 22px 60px rgba(255,216,77,.12); }
+    .mission.final-challenge .mission-number { font-size: 36px; top: 18px; color: rgba(255,216,77,.18); }
+
+    .review-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 19px 22px; margin-top: 18px; border-color: rgba(255,216,77,.28); }
+    .review-card strong { color: var(--yellow); }
+
+    .game-shell { max-width: 940px; margin: 0 auto; }
+    .game-hud { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .hud-pill { padding: 10px 14px; border-radius: 13px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.09); font-weight: 800; }
+    .hud-pill span { color: var(--yellow); }
+    .game-progress { height: 12px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; }
+    .game-progress > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--purple), var(--cyan)); transition: width .35s ease; }
+
+    .lesson-card, .question-card, .result-card { padding: clamp(22px, 4vw, 40px); }
+    .lesson-layout { display: grid; grid-template-columns: 1.05fr .95fr; gap: 30px; align-items: center; }
+    .lesson-tag { color: var(--cyan); font-size: 12px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; }
+    .lesson-card h2 { font-size: clamp(31px, 5vw, 52px); margin: 8px 0 14px; line-height: 1.03; }
+    .lesson-card p { color: #d8dcf0; font-size: 18px; line-height: 1.65; white-space: pre-line; }
+    .lesson-key { margin-top: 18px; padding: 16px; border-radius: 16px; background: rgba(255,216,77,.09); border: 1px solid rgba(255,216,77,.18); }
+    .lesson-key strong { color: var(--yellow); }
+    .visual-box { min-height: 300px; display: grid; place-items: center; border-radius: 24px; background: radial-gradient(circle at center, rgba(70,230,255,.13), rgba(255,255,255,.025)); border: 1px solid rgba(255,255,255,.08); overflow: hidden; }
+    .visual-box svg { width: min(100%, 390px); height: auto; }
+    .lesson-actions { display: flex; gap: 10px; margin-top: 22px; }
+
+    .question-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .question-type { color: var(--cyan); text-transform: uppercase; letter-spacing: 1.2px; font-size: 12px; font-weight: 900; }
+    .difficulty { color: var(--yellow); font-size: 13px; }
+    .question-card h2 { margin: 14px 0 18px; font-size: clamp(26px, 4vw, 39px); line-height: 1.2; }
+    .question-visual { min-height: 210px; margin-bottom: 20px; }
+    .question-visual svg { max-height: 220px; }
+    .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .answer {
+      text-align: left; border: 1px solid rgba(255,255,255,.11); color: white; background: rgba(255,255,255,.055);
+      border-radius: 17px; padding: 15px; min-height: 72px; display: flex; align-items: center; gap: 12px; font-weight: 750;
+      transition: .16s ease;
+    }
+    .answer:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--cyan); background: rgba(70,230,255,.08); }
+    .answer-letter { flex: 0 0 auto; width: 35px; height: 35px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,.09); font-weight: 950; }
+    .answer.correct { border-color: var(--green); background: rgba(99,239,157,.13); }
+    .answer.wrong { border-color: var(--red); background: rgba(255,107,122,.13); animation: shake .32s ease; }
+    .answer:disabled { cursor: default; }
+    @keyframes shake { 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+
+    .feedback { margin-top: 17px; padding: 15px 17px; border-radius: 15px; display: none; }
+    .feedback.show { display: block; animation: pop .22s ease; }
+    .feedback.good { background: rgba(99,239,157,.10); border: 1px solid rgba(99,239,157,.23); }
+    .feedback.bad { background: rgba(255,107,122,.10); border: 1px solid rgba(255,107,122,.23); }
+    .feedback strong { display: block; margin-bottom: 4px; }
+    .next-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+    @keyframes pop { from { transform: scale(.97); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .result-card { text-align: center; }
+    .result-icon { font-size: 80px; filter: drop-shadow(0 12px 22px rgba(255,216,77,.25)); }
+    .result-card h2 { font-size: 42px; margin: 8px 0; }
+    .result-card p { color: var(--muted); }
+    .result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0; }
+    .result-stat { padding: 17px; border-radius: 17px; background: rgba(255,255,255,.055); }
+    .result-stat strong { font-size: 27px; color: var(--yellow); display: block; }
+    .result-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+    .modal {
+      position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 18px;
+      background: rgba(4,6,22,.78); backdrop-filter: blur(10px);
+    }
+    .modal-card { width: min(720px, 100%); max-height: 85vh; overflow: auto; padding: 25px; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .modal-head button { width: 38px; height: 38px; border: 0; border-radius: 12px; background: rgba(255,255,255,.08); color: white; }
+    .modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .data-box { width: 100%; min-height: 150px; margin-top: 14px; padding: 12px; color: white; background: #0b0d27; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; }
+
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 100; padding: 13px 17px; border-radius: 14px; color: white; background: #282d63; border: 1px solid rgba(255,255,255,.13); box-shadow: var(--shadow); transform: translateY(25px); opacity: 0; pointer-events: none; transition: .25s ease; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 90; }
+    .confetti i { position: absolute; top: -20px; width: 10px; height: 18px; border-radius: 3px; animation: fall 1.8s linear forwards; }
+    @keyframes fall { to { transform: translate3d(var(--drift), 110vh, 720deg); opacity: .8; } }
+
+    @media (max-width: 900px) {
+      .login-wrap, .dashboard-grid, .lesson-layout { grid-template-columns: 1fr; }
+      .mission-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .visual-box { min-height: 240px; }
+    }
+
+    @media (max-width: 600px) {
+      .app-shell { width: min(100% - 18px, 1180px); }
+      .topbar { align-items: flex-start; }
+      .brand-text { display: none; }
+      .hero, .login-card, .welcome-card, .side-card, .lesson-card, .question-card, .result-card { padding: 20px; }
+      .feature-row, .mission-grid, .answers, .result-stats { grid-template-columns: 1fr; }
+      .game-hud { grid-template-columns: 1fr 1fr; }
+      .game-hud .game-progress { grid-column: 1 / -1; }
+      .stats { gap: 8px; }
+      h1 { letter-spacing: -2px; }
+      .review-card { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">⚡</div>
+        <div class="brand-text">ElectroQuest <small>Academia de energía</small></div>
+      </div>
+      <div id="topUser" class="user-chip hidden">
+        <div id="topAvatar" class="avatar">E</div>
+        <div><strong id="topName">Estudiante</strong><small id="topCourse" style="display:block;color:var(--muted)">Curso</small></div>
+        <button id="logoutBtn" class="ghost-btn" style="padding:8px 10px">Salir</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="loginScreen" class="login-wrap">
+        <article class="hero card">
+          <span class="eyebrow">🎮 Aprender · competir · dominar</span>
+          <h1>Conviértete en un <span class="gradient-text">Maestro de la Electricidad</span></h1>
+          <p>Explora misiones, resuelve retos visuales y fortalece cada concepto con un sistema que repite justo lo que todavía necesitas aprender.</p>
+          <div class="feature-row">
+            <div class="feature"><strong>19</strong><span>misiones progresivas</span></div>
+            <div class="feature"><strong>110+</strong><span>retos de cuatro opciones</span></div>
+            <div class="feature"><strong>∞</strong><span>repasos inteligentes</span></div>
+          </div>
+        </article>
+
+        <article class="login-card card">
+          <h2>Ingreso de estudiante</h2>
+          <p>Escribe los mismos datos cada vez para recuperar tu avance.</p>
+          <form id="loginForm">
+            <div class="field">
+              <label for="studentName">Nombre y apellido</label>
+              <input id="studentName" maxlength="42" placeholder="Ejemplo: Laura Gómez" required autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="studentCourse">Curso o grupo</label>
+              <input id="studentCourse" maxlength="18" placeholder="Ejemplo: 701" required />
+            </div>
+            <div class="field">
+              <label for="studentPin">PIN de 4 números</label>
+              <input id="studentPin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="1234" required />
+            </div>
+            <button class="primary-btn" type="submit">Entrar a la aventura ⚡</button>
+            <div id="loginError" class="login-error"></div>
+          </form>
+          <p class="mini-note">El progreso se guarda en este equipo y, al configurar Supabase, también se sincroniza para mostrar un ranking global entre todos los estudiantes.</p>
+        </article>
+      </section>
+
+      <section id="dashboardScreen" class="hidden">
+        <div class="dashboard-grid">
+          <article class="welcome-card card">
+            <span id="levelBadge" class="level-badge">Nivel 1 · Chispa</span>
+            <h2>¡Hola, <span id="welcomeName">estudiante</span>!</h2>
+            <p id="nextMissionText">Tu siguiente misión está lista.</p>
+            <div class="xp-bar"><div id="xpFill" class="xp-fill"></div></div>
+            <div class="xp-label"><span id="xpLabel">0 XP</span><span id="nextLevelLabel">100 XP para subir</span></div>
+            <div class="stats">
+              <div class="stat"><span>Misiones</span><strong id="statMissions">0/19</strong></div>
+              <div class="stat"><span>Precisión</span><strong id="statAccuracy">0%</strong></div>
+              <div class="stat"><span>Racha</span><strong id="statStreak">0 🔥</strong></div>
+              <div class="stat"><span>Posición</span><strong id="statRank">#1</strong></div>
+            </div>
+          </article>
+
+          <aside class="side-card card">
+            <div class="section-head" style="margin:0 0 13px"><div><h3>🏆 Ranking</h3><p id="rankingScope">Cargando clasificación…</p></div><button id="dataBtn" class="ghost-btn" style="padding:9px 11px">Datos</button></div>
+            <div id="rankingList" class="rank-list"></div>
+          </aside>
+        </div>
+
+        <article id="reviewCard" class="review-card card hidden">
+          <div><strong>🧠 Repasos disponibles</strong><div id="reviewText" style="color:var(--muted);margin-top:4px">Tienes conceptos pendientes.</div></div>
+          <button id="reviewBtn" class="secondary-btn">Iniciar repaso</button>
+        </article>
+
+        <div class="section-head">
+          <div><h3>Mapa de misiones</h3><p>Supera las 19 misiones para desbloquear el Gran Reto Final.</p></div>
+          <button id="continueBtn" class="secondary-btn">Continuar aventura</button>
+        </div>
+        <div id="missionGrid" class="mission-grid"></div>
+      </section>
+
+      <section id="gameScreen" class="game-shell hidden">
+        <div class="game-hud">
+          <div class="game-progress"><div id="gameProgressFill"></div></div>
+          <div class="hud-pill">⭐ <span id="hudXp">0</span> XP</div>
+          <div class="hud-pill">🔥 <span id="hudStreak">0</span></div>
+          <button id="quitGameBtn" class="ghost-btn">Salir</button>
+        </div>
+
+        <article id="lessonView" class="lesson-card card hidden">
+          <div class="lesson-layout">
+            <div>
+              <div class="lesson-tag">Microlección · <span id="lessonMissionNo">Misión 1</span></div>
+              <h2 id="lessonTitle">Título</h2>
+              <p id="lessonText">Contenido breve.</p>
+              <div class="lesson-key"><strong>Clave para recordar:</strong> <span id="lessonKey">Idea clave.</span></div>
+              <div class="lesson-actions">
+                <button id="startQuestionsBtn" class="primary-btn" style="width:auto;margin:0">Aceptar el reto →</button>
+              </div>
+            </div>
+            <div id="lessonVisual" class="visual-box"></div>
+          </div>
+        </article>
+
+        <article id="questionView" class="question-card card hidden">
+          <div class="question-top">
+            <span id="questionType" class="question-type">Reto conceptual</span>
+            <span id="difficulty" class="difficulty">⚡ Nivel básico</span>
+          </div>
+          <h2 id="questionText">Pregunta</h2>
+          <div id="questionVisual" class="visual-box question-visual"></div>
+          <div id="answers" class="answers"></div>
+          <div id="feedback" class="feedback"></div>
+          <div class="next-row"><button id="nextQuestionBtn" class="secondary-btn hidden">Siguiente reto →</button></div>
+        </article>
+
+        <article id="resultView" class="result-card card hidden">
+          <div id="resultIcon" class="result-icon">🏆</div>
+          <h2 id="resultTitle">¡Misión superada!</h2>
+          <p id="resultText">Has fortalecido un nuevo poder eléctrico.</p>
+          <div class="result-stats">
+            <div class="result-stat"><strong id="resultXp">+0</strong><span>XP ganados</span></div>
+            <div class="result-stat"><strong id="resultAccuracy">0%</strong><span>Precisión</span></div>
+            <div class="result-stat"><strong id="resultReviews">0</strong><span>Conceptos reforzados</span></div>
+          </div>
+          <div class="result-actions">
+            <button id="backDashboardBtn" class="ghost-btn">Volver al mapa</button>
+            <button id="nextMissionBtn" class="primary-btn" style="width:auto;margin:0">Siguiente misión</button>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div id="dataModal" class="modal hidden">
+    <div class="modal-card card">
+      <div class="modal-head"><div><h2 style="margin:0">Gestión de datos</h2><p style="color:var(--muted);margin:5px 0 0">Respalda o traslada el progreso.</p></div><button id="closeModalBtn">✕</button></div>
+      <div class="modal-actions">
+        <button id="exportBtn" class="secondary-btn">Exportar progreso</button>
+        <button id="importBtn" class="ghost-btn">Importar progreso</button>
+        <button id="resetBtn" class="danger-btn">Borrar este perfil</button>
+      </div>
+      <textarea id="dataBox" class="data-box" placeholder="Aquí aparecerá el respaldo o pega aquí uno para importarlo."></textarea>
+      <p class="mini-note">El respaldo local permite recuperar el progreso si no hay internet. Los perfiles globales se sincronizan cuando Supabase está configurado.</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <div id="confetti" class="confetti"></div>
+
+  <script src="config.js"></script>
+  <script>
+    "use strict";
+
+    const STORAGE_KEY = "electroquest_v1";
+    const SESSION_KEY = "electroquest_current";
+    const REVIEW_DELAY_MS = 10 * 60 * 1000;
+    const SESSION_PIN_HASH_KEY = "electroquest_pin_hash";
+    const CLOUD_CONFIG = window.ELECTROQUEST_CLOUD || {};
+    let cloudPinHash = sessionStorage.getItem(SESSION_PIN_HASH_KEY) || "";
+    let cloudSaveTimer = null;
+    let cloudOnline = false;
+
+    const modules = [
+      {
+        id: "atomos", icon: "⚛️", title: "Átomos y cargas", subtitle: "Descubre de dónde nace la electricidad.", visual: "atom",
+        lesson: "Toda la materia está formada por átomos. Los protones tienen carga positiva, los electrones negativa y los neutrones no tienen carga. La electricidad aparece cuando las cargas se acumulan o se desplazan.",
+        key: "Cargas iguales se repelen y cargas diferentes se atraen.",
+        questions: [
+          { id:"a1", type:"Reto visual", difficulty:1, visual:"charges", q:"¿Qué ocurre cuando acercamos dos cargas negativas?", options:["Se atraen","Se repelen","Desaparecen","Se vuelven neutras"], answer:1, explain:"Las cargas del mismo signo se repelen." },
+          { id:"a2", type:"Concepto relámpago", difficulty:1, visual:"atom", q:"¿Qué partícula del átomo tiene carga negativa?", options:["Protón","Neutrón","Electrón","Núcleo"], answer:2, explain:"El electrón posee carga eléctrica negativa." },
+          { id:"a3", type:"Decisión rápida", difficulty:1, visual:"static", q:"Frotar un globo contra el cabello es un ejemplo de…", options:["Potencia eléctrica","Electricidad estática","Corriente alterna","Cortocircuito"], answer:1, explain:"El frotamiento acumula carga: electricidad estática." }
+        ]
+      },
+      {
+        id:"materials", icon:"🧱", title:"Conductores y aislantes", subtitle:"Elige por dónde puede viajar la corriente.", visual:"materials",
+        lesson:"Los conductores permiten que las cargas se muevan con facilidad; el cobre y el aluminio son ejemplos. Los aislantes, como el plástico y el caucho, dificultan ese movimiento.",
+        key:"El metal suele conducir; el plástico suele aislar.",
+        questions:[
+          {id:"m1",type:"Clasificación",difficulty:1,visual:"wire",q:"¿Cuál material es mejor conductor para fabricar un cable?",options:["Cobre","Madera seca","Vidrio","Caucho"],answer:0,explain:"El cobre conduce muy bien y es común en cables."},
+          {id:"m2",type:"Seguridad",difficulty:1,visual:"insulation",q:"¿Por qué los cables están cubiertos de plástico?",options:["Para producir más corriente","Para aislar y evitar contactos","Para aumentar la frecuencia","Para almacenar energía"],answer:1,explain:"El plástico limita el contacto con el conductor metálico."}
+        ]
+      },
+      {
+        id:"circuit", icon:"🔁", title:"Circuito eléctrico", subtitle:"Construye un camino completo para la energía.", visual:"circuit",
+        lesson:"Un circuito necesita una fuente, conductores, una carga y, normalmente, un control. La corriente circula cuando existe un camino cerrado.",
+        key:"Circuito cerrado: funciona. Circuito abierto: se interrumpe.",
+        questions:[
+          {id:"c1",type:"Observación",difficulty:1,visual:"openCircuit",q:"En el dibujo, el interruptor está abierto. ¿Qué pasa con la bombilla?",options:["Brilla más","No enciende","Explota","Cambia de color"],answer:1,explain:"El camino está interrumpido y no circula corriente."},
+          {id:"c2",type:"Construcción",difficulty:1,visual:"circuit",q:"¿Cuál elemento entrega energía al circuito?",options:["La batería","El cable","El interruptor","La bombilla"],answer:0,explain:"La batería es la fuente de energía eléctrica."},
+          {id:"c3",type:"Alerta",difficulty:2,visual:"short",q:"¿Qué es un cortocircuito?",options:["Un circuito con mucha resistencia","Un camino de muy poca resistencia","Una batería descargada","Un interruptor abierto"],answer:1,explain:"La corriente toma un camino casi sin resistencia y puede crecer peligrosamente."}
+        ]
+      },
+      {
+        id:"current", icon:"🌊", title:"Corriente eléctrica", subtitle:"Mide cuánto flujo atraviesa un conductor.", visual:"current",
+        lesson:"La corriente es la cantidad de carga que pasa por un punto durante un tiempo. Se representa con I y se mide en amperios (A).",
+        key:"Más carga atravesando el cable por segundo significa mayor corriente.",
+        questions:[
+          {id:"i1",type:"Unidad secreta",difficulty:1,visual:"ammeter",q:"¿En qué unidad se mide la corriente eléctrica?",options:["Voltios","Ohmios","Amperios","Vatios"],answer:2,explain:"La corriente se mide en amperios, símbolo A."},
+          {id:"i2",type:"Analogía",difficulty:1,visual:"water",q:"En la comparación con una tubería, la corriente se parece a…",options:["La cantidad de agua que fluye","El color de la tubería","La altura del tanque solamente","La temperatura del agua"],answer:0,explain:"La corriente representa cuánto flujo pasa."}
+        ]
+      },
+      {
+        id:"voltage", icon:"🔋", title:"Voltaje", subtitle:"Comprende la fuerza que impulsa las cargas.", visual:"battery",
+        lesson:"El voltaje o diferencia de potencial es el impulso que mueve las cargas. Se mide en voltios (V). Una batería crea diferencia de potencial entre sus terminales.",
+        key:"El voltaje es el empuje; la corriente es el flujo.",
+        questions:[
+          {id:"v1",type:"Unidad secreta",difficulty:1,visual:"voltmeter",q:"¿Cuál es la unidad del voltaje?",options:["Amperio","Voltio","Ohmio","Julio por hora"],answer:1,explain:"El voltaje se mide en voltios, símbolo V."},
+          {id:"v2",type:"Comparación",difficulty:1,visual:"batteryCompare",q:"¿Cuál batería produce mayor diferencia de potencial?",options:["La de 1,5 V","La de 9 V","Ambas igual","No se puede comparar"],answer:1,explain:"9 V representa un impulso eléctrico mayor que 1,5 V."}
+        ]
+      },
+      {
+        id:"resistance", icon:"🧯", title:"Resistencia", subtitle:"Controla cuánto se opone un material.", visual:"resistor",
+        lesson:"La resistencia es la oposición al paso de la corriente. Se representa con R y se mide en ohmios (Ω). Un conductor largo y delgado suele ofrecer más resistencia.",
+        key:"Mayor resistencia, menor corriente si el voltaje no cambia.",
+        questions:[
+          {id:"r1",type:"Unidad secreta",difficulty:1,visual:"resistor",q:"¿En qué unidad se mide la resistencia?",options:["Ohmios","Amperios","Voltios","Hercios"],answer:0,explain:"La resistencia se mide en ohmios, símbolo Ω."},
+          {id:"r2",type:"Laboratorio",difficulty:2,visual:"wireCompare",q:"¿Cuál cable suele tener mayor resistencia?",options:["Corto y grueso","Largo y delgado","Corto y de cobre grueso","Todos siempre igual"],answer:1,explain:"Más longitud y menor sección dificultan el paso de corriente."}
+        ]
+      },
+      {
+        id:"ohm", icon:"🧮", title:"Ley de Ohm", subtitle:"Relaciona voltaje, corriente y resistencia.", visual:"ohm",
+        lesson:"La Ley de Ohm se expresa como V = I × R. También permite calcular I = V/R y R = V/I.",
+        key:"Recuerda el triángulo: V arriba; I y R abajo.",
+        questions:[
+          {id:"o1",type:"Cálculo",difficulty:2,visual:"ohm",q:"Si V = 12 V y R = 6 Ω, ¿cuál es la corriente?",options:["0,5 A","2 A","6 A","72 A"],answer:1,explain:"I = V/R = 12/6 = 2 A."},
+          {id:"o2",type:"Fórmula",difficulty:1,visual:"formula",q:"¿Cuál fórmula calcula el voltaje?",options:["V = I × R","V = I/R","V = R/I","V = I + R"],answer:0,explain:"La relación correcta es V = I × R."},
+          {id:"o3",type:"Predicción",difficulty:2,visual:"resistanceFlow",q:"Con el mismo voltaje, si aumenta la resistencia, la corriente…",options:["Aumenta","Disminuye","No cambia nunca","Se vuelve alterna"],answer:1,explain:"I = V/R: al aumentar R, disminuye I."}
+        ]
+      },
+      {
+        id:"series", icon:"🚂", title:"Circuitos en serie", subtitle:"Una sola ruta para todos los componentes.", visual:"series",
+        lesson:"En serie, los componentes están uno tras otro. La corriente es la misma en todos, el voltaje se reparte y las resistencias se suman.",
+        key:"Si una parte se abre, todo el camino se interrumpe.",
+        questions:[
+          {id:"s1",type:"Cálculo",difficulty:2,visual:"series",q:"Dos resistencias de 4 Ω y 6 Ω están en serie. ¿Resistencia total?",options:["2 Ω","10 Ω","24 Ω","5 Ω"],answer:1,explain:"En serie se suman: 4 + 6 = 10 Ω."},
+          {id:"s2",type:"Falla",difficulty:1,visual:"seriesBroken",q:"Si una bombilla se desconecta en un circuito en serie…",options:["Las demás siguen igual","Todas dejan de encender","Aumenta el voltaje de la casa","Se crea corriente alterna"],answer:1,explain:"Existe una sola ruta, así que la interrupción afecta a todo el circuito."}
+        ]
+      },
+      {
+        id:"parallel", icon:"🛣️", title:"Circuitos en paralelo", subtitle:"Varias rutas conectadas al mismo voltaje.", visual:"parallel",
+        lesson:"En paralelo, las ramas comparten los mismos dos puntos. Todas reciben el mismo voltaje y la corriente se divide entre las ramas.",
+        key:"Una rama puede fallar sin apagar necesariamente las demás.",
+        questions:[
+          {id:"p1",type:"Vida diaria",difficulty:1,visual:"house",q:"¿Por qué una bombilla de la casa puede apagarse sin apagar todas?",options:["Porque están en paralelo","Porque están siempre en serie","Porque no usan corriente","Porque cada una crea electricidad"],answer:0,explain:"Las instalaciones domésticas conectan cargas principalmente en paralelo."},
+          {id:"p2",type:"Comparación",difficulty:2,visual:"parallel",q:"En un circuito paralelo, el voltaje de cada rama es…",options:["El mismo de la fuente","Siempre cero","La suma de todas las ramas","Diferente sin regla"],answer:0,explain:"Cada rama está conectada entre los mismos puntos de la fuente."}
+        ]
+      },
+      {
+        id:"power", icon:"💡", title:"Potencia y energía", subtitle:"Calcula rapidez de consumo y uso total.", visual:"power",
+        lesson:"La potencia indica qué tan rápido se transforma energía y se mide en vatios: P = V × I. La energía consumida depende de la potencia y el tiempo: E = P × t.",
+        key:"Potencia es rapidez; energía es cantidad acumulada.",
+        questions:[
+          {id:"pw1",type:"Cálculo",difficulty:2,visual:"power",q:"Un aparato funciona a 12 V y consume 2 A. ¿Su potencia?",options:["6 W","14 W","24 W","144 W"],answer:2,explain:"P = V × I = 12 × 2 = 24 W."},
+          {id:"pw2",type:"Factura",difficulty:2,visual:"meter",q:"¿Qué unidad suele usar la factura de electricidad?",options:["kWh","km/h","Ω/s","A²"],answer:0,explain:"El consumo doméstico se factura normalmente en kilovatios-hora."}
+        ]
+      },
+      {
+        id:"acdc", icon:"〰️", title:"Corriente continua y alterna", subtitle:"Reconoce cómo cambia el sentido del flujo.", visual:"acdc",
+        lesson:"En corriente continua (DC), la corriente mantiene su sentido, como en una batería. En corriente alterna (AC), cambia periódicamente de sentido, como en la red doméstica.",
+        key:"Batería: DC. Toma doméstica: AC.",
+        questions:[
+          {id:"ad1",type:"Clasificación",difficulty:1,visual:"battery",q:"Una pila entrega principalmente…",options:["Corriente continua","Corriente alterna","Solo potencia sin corriente","Frecuencia infinita"],answer:0,explain:"Las pilas y baterías entregan corriente continua."},
+          {id:"ad2",type:"Onda",difficulty:1,visual:"acdc",q:"¿Cuál señal cambia periódicamente de sentido?",options:["DC","AC","Una resistencia","La tierra"],answer:1,explain:"La corriente alterna invierte su sentido periódicamente."},
+          {id:"ad3",type:"Polaridad",difficulty:1,visual:"led",q:"¿Cuál componente debe conectarse respetando su polaridad?",options:["LED","Resistencia común","Interruptor mecánico simple","Cable de cobre"],answer:0,explain:"El LED es un diodo y conduce principalmente en un sentido."}
+        ]
+      },
+      {
+        id:"components", icon:"🧩", title:"Componentes básicos", subtitle:"Conoce las piezas del mundo electrónico.", visual:"components",
+        lesson:"Las resistencias limitan corriente, los condensadores almacenan carga temporalmente, los diodos conducen en un sentido, los transistores controlan señales y los relés conmutan cargas.",
+        key:"Cada componente cumple una función diferente; no son intercambiables.",
+        questions:[
+          {id:"cp1",type:"Identificación",difficulty:1,visual:"capacitor",q:"¿Qué componente almacena carga temporalmente?",options:["Condensador","Interruptor","Fusible","Bombilla"],answer:0,explain:"El condensador almacena energía en un campo eléctrico."},
+          {id:"cp2",type:"Identificación",difficulty:1,visual:"diode",q:"¿Qué componente permite corriente principalmente en un sentido?",options:["Diodo","Potenciómetro","Motor","Transformador"],answer:0,explain:"El diodo actúa como una válvula eléctrica unidireccional."},
+          {id:"cp3",type:"Control",difficulty:2,visual:"transistor",q:"¿Qué componente puede funcionar como interruptor electrónico?",options:["Transistor","Cable","Bombilla","Pila descargada"],answer:0,explain:"Un transistor puede controlar una corriente mayor mediante una señal."}
+        ]
+      },
+      {
+        id:"magnetism", icon:"🧲", title:"Electromagnetismo", subtitle:"Conecta electricidad, magnetismo y movimiento.", visual:"magnet",
+        lesson:"Una corriente crea un campo magnético. Un campo magnético cambiante también puede inducir voltaje. Estos principios permiten motores, generadores, relés y transformadores.",
+        key:"Electricidad puede producir magnetismo y el magnetismo cambiante puede producir electricidad.",
+        questions:[
+          {id:"mg1",type:"Aplicación",difficulty:1,visual:"motor",q:"¿Qué dispositivo convierte energía eléctrica en movimiento?",options:["Motor","Generador","Resistencia","Fusible"],answer:0,explain:"El motor transforma energía eléctrica en energía mecánica."},
+          {id:"mg2",type:"Aplicación",difficulty:2,visual:"generator",q:"¿Qué dispositivo convierte movimiento en energía eléctrica?",options:["Generador","LED","Condensador","Interruptor"],answer:0,explain:"El generador aprovecha la inducción electromagnética."}
+        ]
+      },
+      {
+        id:"batteries", icon:"🔋", title:"Pilas y baterías", subtitle:"Combina voltaje, capacidad y autonomía.", visual:"batteries",
+        lesson:"La capacidad suele medirse en Ah o mAh. En serie se suman voltajes; en paralelo se conserva el voltaje y aumenta la capacidad disponible, usando baterías compatibles.",
+        key:"Serie suma voltaje; paralelo aumenta capacidad.",
+        questions:[
+          {id:"bt1",type:"Cálculo",difficulty:2,visual:"batterySeries",q:"Dos pilas de 1,5 V en serie entregan aproximadamente…",options:["0,75 V","1,5 V","3 V","15 V"],answer:2,explain:"En serie se suman los voltajes: 1,5 + 1,5 = 3 V."},
+          {id:"bt2",type:"Autonomía",difficulty:2,visual:"capacity",q:"Idealmente, una batería de 2000 mAh podría entregar 1000 mA durante…",options:["30 minutos","1 hora","2 horas","20 horas"],answer:2,explain:"Capacidad/corriente = 2000/1000 = 2 horas en condiciones ideales."}
+        ]
+      },
+      {
+        id:"meter", icon:"📟", title:"Uso del multímetro", subtitle:"Mide sin dañar el circuito ni el instrumento.", visual:"multimeter",
+        lesson:"El voltaje se mide en paralelo; la corriente, en serie; la resistencia se mide con el circuito desenergizado. La continuidad comprueba si existe un camino conductor.",
+        key:"Voltaje: paralelo. Corriente: serie. Resistencia: sin energía.",
+        questions:[
+          {id:"mm1",type:"Laboratorio",difficulty:2,visual:"voltageMeasure",q:"¿Cómo se conecta el multímetro para medir voltaje?",options:["En paralelo","En serie","Solo a tierra","Sin tocar el circuito"],answer:0,explain:"El voltímetro compara potencial entre dos puntos y se conecta en paralelo."},
+          {id:"mm2",type:"Alerta",difficulty:2,visual:"currentMeasure",q:"¿Cómo se conecta el multímetro para medir corriente?",options:["En paralelo directo a la batería","En serie con la carga","Sobre el plástico del cable","En modo resistencia con energía"],answer:1,explain:"El amperímetro debe formar parte del camino de la corriente."},
+          {id:"mm3",type:"Seguridad",difficulty:2,visual:"ohmMeasure",q:"Para medir resistencia, el circuito debe estar…",options:["Energizado al máximo","Desenergizado","En cortocircuito","Con corriente alterna obligatoriamente"],answer:1,explain:"Medir resistencia con el circuito energizado puede dar lecturas erróneas o dañar el equipo."}
+        ]
+      },
+      {
+        id:"home", icon:"🏠", title:"Fase, neutro y tierra", subtitle:"Comprende los conductores de una instalación.", visual:"homeWires",
+        lesson:"La fase lleva tensión, el neutro sirve como retorno del circuito y la tierra de protección ofrece un camino de seguridad ante fallas. Tierra y neutro no cumplen la misma función.",
+        key:"La tierra protege; nunca debe reemplazar al neutro.",
+        questions:[
+          {id:"h1",type:"Seguridad",difficulty:2,visual:"ground",q:"¿Cuál conductor ayuda a proteger ante una falla en la carcasa metálica?",options:["Tierra de protección","Fase","Cable de señal","Cualquier cable delgado"],answer:0,explain:"La tierra conduce corrientes de falla hacia un camino de protección."},
+          {id:"h2",type:"Función",difficulty:1,visual:"homeWires",q:"¿Cuál conductor normalmente presenta tensión respecto a tierra?",options:["Fase","Neutro ideal","Tierra","Aislante"],answer:0,explain:"La fase es el conductor activo de la instalación."}
+        ]
+      },
+      {
+        id:"protection", icon:"🛡️", title:"Protecciones eléctricas", subtitle:"Distingue sobrecarga, fuga y cortocircuito.", visual:"protection",
+        lesson:"El fusible y el interruptor termomagnético actúan ante exceso de corriente. El diferencial detecta fugas. La puesta a tierra y los protectores de sobretensión reducen otros riesgos.",
+        key:"No todos los dispositivos protegen contra el mismo peligro.",
+        questions:[
+          {id:"pr1",type:"Defensa",difficulty:2,visual:"breaker",q:"¿Qué dispositivo protege principalmente contra sobrecargas y cortocircuitos?",options:["Interruptor termomagnético","Bombilla","Potenciómetro","Condensador"],answer:0,explain:"El termomagnético abre el circuito ante exceso de corriente."},
+          {id:"pr2",type:"Defensa",difficulty:2,visual:"differential",q:"¿Qué dispositivo está diseñado para detectar fugas de corriente?",options:["Interruptor diferencial","Resistencia","Transformador","LED"],answer:0,explain:"El diferencial compara corrientes y actúa cuando detecta una fuga."},
+          {id:"pr3",type:"Peligro",difficulty:1,visual:"overload",q:"Conectar demasiados aparatos a una extensión puede causar…",options:["Sobrecarga","Aislamiento perfecto","Menor temperatura siempre","Generación gratuita"],answer:0,explain:"La corriente puede superar la capacidad del cable y calentarlo."}
+        ]
+      },
+      {
+        id:"signals", icon:"📡", title:"Señales analógicas y digitales", subtitle:"Interpreta valores continuos y estados lógicos.", visual:"signals",
+        lesson:"Una señal analógica puede tomar muchos valores dentro de un rango. Una señal digital usa niveles definidos, como 0 y 1. Los microcontroladores trabajan con ambas mediante entradas y salidas.",
+        key:"Analógico: rango continuo. Digital: estados definidos.",
+        questions:[
+          {id:"sg1",type:"Clasificación",difficulty:1,visual:"signals",q:"La lectura variable de un sensor de luz es normalmente una señal…",options:["Analógica","Solo mecánica","Neutra","De protección"],answer:0,explain:"La intensidad puede adoptar muchos valores dentro de un rango."},
+          {id:"sg2",type:"Lógica",difficulty:1,visual:"binary",q:"Una señal que representa encendido con 1 y apagado con 0 es…",options:["Digital","Analógica pura","Magnética solamente","Térmica"],answer:0,explain:"Los estados 0 y 1 son una representación digital."}
+        ]
+      },
+      {
+        id:"safety", icon:"🚨", title:"Seguridad eléctrica", subtitle:"Demuestra que sabes trabajar sin asumir riesgos.", visual:"safety",
+        lesson:"Antes de intervenir, desenergiza y verifica. No trabajes con manos mojadas, usa herramientas adecuadas, respeta límites y evita experimentar con la red doméstica sin formación profesional.",
+        key:"Primero cortar, luego verificar y solo después intervenir.",
+        questions:[
+          {id:"sf1",type:"Decisión crítica",difficulty:2,visual:"wetHands",q:"¿Qué debes hacer antes de reparar un circuito?",options:["Desenergizar y verificar","Tocarlo rápidamente","Mojar las manos","Cambiar el fusible por un cable"],answer:0,explain:"Eliminar y comprobar la ausencia de energía es el primer paso seguro."},
+          {id:"sf2",type:"Decisión crítica",difficulty:2,visual:"fuse",q:"¿Es correcto reemplazar un fusible por un cable grueso?",options:["Sí, siempre","No, elimina la protección","Solo si brilla","Sí, porque baja el voltaje"],answer:1,explain:"Un cable puede impedir que el circuito se abra ante una falla y aumentar el riesgo de incendio."},
+          {id:"sf3",type:"Misión final",difficulty:3,visual:"safety",q:"Para comenzar a practicar electricidad, ¿cuál opción es más segura?",options:["Circuitos de bajo voltaje con baterías","Abrir una toma doméstica energizada","Manipular cables pelados","Probar al azar con la red"],answer:0,explain:"Los montajes de bajo voltaje reducen considerablemente el riesgo durante el aprendizaje."}
+        ]
+      }
+    ];
+
+    // Lecciones ampliadas y banco adicional. Cada misión queda con seis retos.
+    const contentEnhancements = {
+      atomos: {
+        lesson: `Todo objeto está hecho de átomos. En su centro se encuentran protones positivos y neutrones sin carga; alrededor se encuentran electrones negativos. Un objeto normalmente parece neutro porque sus cargas se compensan, pero puede quedar con exceso o falta de electrones.
+
+Cuando las cargas quedan acumuladas hablamos de electricidad estática. Cuando encuentran un camino y se desplazan aparece la corriente. El signo de las cargas permite anticipar si dos cuerpos tenderán a acercarse o separarse, y también ayuda a comprender por qué ciertos objetos atraen pequeños papeles después de ser frotados.`,
+        key: "Observa el signo, el equilibrio y si la carga está acumulada o en movimiento.",
+        questions: [
+          {id:"a4",type:"Equilibrio",difficulty:1,visual:"atom",q:"Un átomo con igual cantidad de protones y electrones es…",options:["Eléctricamente neutro","Siempre negativo","Siempre positivo","Un cortocircuito"],answer:0,explain:"Las cargas positivas y negativas se compensan y el resultado neto es neutro."},
+          {id:"a5",type:"Cambio de carga",difficulty:2,visual:"charges",q:"Si un cuerpo gana electrones, su carga neta tiende a ser…",options:["Negativa","Positiva","Neutra obligatoriamente","Magnética"],answer:0,explain:"Los electrones tienen carga negativa; un exceso de ellos hace negativa la carga neta."},
+          {id:"a6",type:"Atracción",difficulty:1,visual:"charges",q:"¿Qué combinación de cargas tiende a atraerse?",options:["Una positiva y una negativa","Dos positivas","Dos negativas","Dos neutras siempre"],answer:0,explain:"Las cargas de signo contrario se atraen."}
+        ]
+      },
+      materials: {
+        lesson: `Para que una corriente circule, las cargas necesitan un material que les permita desplazarse. En los metales existen electrones con mayor libertad de movimiento; por eso el cobre y el aluminio se usan en conductores. Otros materiales sujetan con fuerza sus electrones y dificultan el paso.
+
+En un cable real suelen combinarse ambas propiedades: un núcleo metálico conduce y una cubierta de plástico aísla. También existen semiconductores, como el silicio, cuyo comportamiento puede controlarse; gracias a ellos funcionan diodos, transistores, sensores y microcontroladores.`,
+        key: "Piensa qué parte debe transportar la corriente y cuál debe impedir el contacto.",
+        questions: [
+          {id:"m3",type:"Clasificación",difficulty:1,visual:"materials",q:"¿Cuál de estos materiales se usa normalmente como aislante?",options:["Caucho","Cobre","Aluminio","Plata"],answer:0,explain:"El caucho dificulta el movimiento de cargas y se usa como aislante."},
+          {id:"m4",type:"Diseño",difficulty:2,visual:"insulation",q:"En un cable, ¿qué parte debe ser conductora?",options:["El núcleo metálico","La cubierta plástica","La etiqueta exterior","El aire alrededor"],answer:0,explain:"El núcleo metálico forma el camino por el que circula la corriente."},
+          {id:"m5",type:"Tecnología",difficulty:2,visual:"components",q:"El silicio utilizado en componentes electrónicos es un…",options:["Semiconductor","Aislante perfecto","Generador","Fusible"],answer:0,explain:"El silicio es un semiconductor cuyo comportamiento eléctrico puede controlarse."},
+          {id:"m6",type:"Predicción",difficulty:2,visual:"wire",q:"¿Qué ocurriría si un cable no tuviera cubierta aislante?",options:["Aumentaría el riesgo de contacto y cortocircuito","Nunca circularía corriente","Se convertiría en batería","Mediría voltaje"],answer:0,explain:"El metal expuesto puede tocar personas u otros conductores y crear caminos peligrosos."}
+        ]
+      },
+      circuit: {
+        lesson: `Un circuito es un recorrido organizado. La fuente establece una diferencia eléctrica, los cables conectan los puntos, la carga transforma la energía y el interruptor controla el camino. Para que el efecto sea continuo debe existir una ruta completa de ida y regreso.
+
+Si el recorrido se abre, el movimiento se detiene. Si la corriente encuentra un atajo de resistencia muy pequeña, puede crecer demasiado y producir calor. Por eso, al observar un esquema, conviene seguir el camino desde un terminal de la fuente hasta el otro y comprobar qué elementos atraviesa.`,
+        key: "Sigue el camino completo y busca interrupciones o atajos.",
+        questions: [
+          {id:"c4",type:"Componentes",difficulty:1,visual:"circuit",q:"¿Qué elemento transforma la energía eléctrica en luz, movimiento o calor?",options:["La carga o receptor","El cable únicamente","El interruptor abierto","El símbolo de tierra"],answer:0,explain:"La carga utiliza la energía; puede ser una bombilla, un motor o una resistencia calefactora."},
+          {id:"c5",type:"Diagnóstico",difficulty:2,visual:"openCircuit",q:"Un cable se rompe en una única ruta. El circuito queda…",options:["Abierto","En paralelo","Con mayor frecuencia","Convertido en generador"],answer:0,explain:"La rotura interrumpe el recorrido y deja el circuito abierto."},
+          {id:"c6",type:"Control",difficulty:1,visual:"circuit",q:"¿Cuál es la función principal de un interruptor?",options:["Abrir o cerrar el camino","Crear electrones","Medir resistencia","Aumentar siempre el voltaje"],answer:0,explain:"El interruptor controla la continuidad del recorrido eléctrico."}
+        ]
+      },
+      current: {
+        lesson: `La corriente describe cuánto movimiento de carga atraviesa un punto durante cierto tiempo. Su símbolo es I y su unidad es el amperio. Dos circuitos pueden tener electrones, pero el que deja pasar más carga cada segundo presenta una corriente mayor.
+
+Por convenio, en los esquemas se dibuja la corriente desde el terminal positivo hacia el negativo, aunque los electrones de un metal se desplazan en sentido contrario. También aparecen unidades pequeñas: un amperio equivale a mil miliamperios, una relación frecuente en sensores y circuitos electrónicos.`,
+        key: "Relaciona cantidad de carga, tiempo y el tamaño de la unidad.",
+        questions: [
+          {id:"i3",type:"Conversión",difficulty:2,visual:"ammeter",q:"¿Cuántos miliamperios equivalen a 1 amperio?",options:["1000 mA","100 mA","10 mA","0,001 mA"],answer:0,explain:"El prefijo mili representa una milésima; por eso 1 A = 1000 mA."},
+          {id:"i4",type:"Comparación",difficulty:2,visual:"current",q:"Por un conductor pasan más cargas cada segundo. La corriente…",options:["Aumenta","Disminuye","Se vuelve resistencia","Desaparece"],answer:0,explain:"La corriente aumenta cuando atraviesa más carga por unidad de tiempo."},
+          {id:"i5",type:"Símbolo",difficulty:1,visual:"ammeter",q:"¿Qué letra se utiliza normalmente para representar la corriente?",options:["I","V","R","P"],answer:0,explain:"La intensidad de corriente se representa con la letra I."},
+          {id:"i6",type:"Sentido",difficulty:2,visual:"battery",q:"En el sentido convencional de un circuito DC, la corriente se dibuja desde…",options:["El positivo hacia el negativo","El negativo hacia el positivo solamente","Tierra hacia ambos polos","La carga hacia la fuente sin retorno"],answer:0,explain:"Por convenio se representa desde el polo positivo hacia el negativo."}
+        ]
+      },
+      voltage: {
+        lesson: `El voltaje compara la energía eléctrica disponible entre dos puntos. No es una sustancia que viaje por el cable, sino una diferencia capaz de impulsar las cargas cuando existe un circuito cerrado. Se representa con V y se mide en voltios.
+
+Una pila mantiene dos terminales con distinto potencial. Si se conectan fuentes apropiadamente puede cambiar el impulso total; sin embargo, un voltaje mayor no garantiza por sí solo que circule más corriente, porque también intervienen la resistencia y las características de la carga.`,
+        key: "El voltaje siempre es una diferencia entre dos puntos y necesita un camino para producir corriente.",
+        questions: [
+          {id:"v3",type:"Interpretación",difficulty:2,visual:"battery",q:"Una batería está desconectada. Entre sus terminales todavía puede existir…",options:["Diferencia de potencial","Corriente por la bombilla","Un cortocircuito obligatorio","Resistencia cero"],answer:0,explain:"La batería puede mantener voltaje aunque el circuito esté abierto y no circule corriente."},
+          {id:"v4",type:"Comparación",difficulty:2,visual:"batteryCompare",q:"Entre dos fuentes compatibles, una de 12 V ofrece respecto a una de 6 V…",options:["Mayor diferencia de potencial","La mitad del impulso","La misma tensión","Cero energía"],answer:0,explain:"Doce voltios representan una diferencia de potencial mayor que seis voltios."},
+          {id:"v5",type:"Analogía",difficulty:1,visual:"water",q:"En la analogía hidráulica, el voltaje se parece más a…",options:["La presión que impulsa el agua","El color del agua","El diámetro escrito en la tubería","La cantidad ya consumida"],answer:0,explain:"La presión impulsa el flujo, de manera semejante a como el voltaje impulsa las cargas."},
+          {id:"v6",type:"Condición",difficulty:2,visual:"openCircuit",q:"Hay voltaje pero el interruptor está abierto. La corriente en la ruta principal será…",options:["Nula o prácticamente nula","Máxima siempre","Alterna automáticamente","Igual a la potencia"],answer:0,explain:"Sin un camino cerrado no puede mantenerse el flujo de corriente."}
+        ]
+      },
+      resistance: {
+        lesson: `La resistencia expresa cuánto se opone un elemento al paso de la corriente. Su símbolo es R y se mide en ohmios. Los materiales no se comportan igual: el tipo de material, la longitud, el grosor y la temperatura pueden modificar esta oposición.
+
+En conductores semejantes, una ruta larga ofrece más dificultad y una sección gruesa ofrece más espacio para el movimiento. Las resistencias también se colocan deliberadamente para limitar corriente, dividir voltaje o proteger componentes sensibles como los LED.`,
+        key: "Compara material, longitud y grosor antes de predecir el paso de corriente.",
+        questions: [
+          {id:"r3",type:"Comparación",difficulty:2,visual:"wireCompare",q:"Dos cables son del mismo material y grosor. ¿Cuál suele tener más resistencia?",options:["El más largo","El más corto","Ambos siempre cero","El de menor voltaje escrito"],answer:0,explain:"Al aumentar la longitud, las cargas encuentran una trayectoria más extensa y la resistencia crece."},
+          {id:"r4",type:"Comparación",difficulty:2,visual:"wireCompare",q:"Dos cables tienen igual material y longitud. ¿Cuál suele tener menos resistencia?",options:["El más grueso","El más delgado","El que está desconectado","Ambos necesariamente iguales"],answer:0,explain:"Una mayor sección transversal facilita el movimiento de carga y reduce la resistencia."},
+          {id:"r5",type:"Protección",difficulty:1,visual:"led",q:"¿Por qué suele conectarse una resistencia junto a un LED?",options:["Para limitar la corriente","Para invertir el tiempo","Para crear corriente alterna","Para reemplazar la batería"],answer:0,explain:"La resistencia evita que circule una corriente excesiva por el LED."},
+          {id:"r6",type:"Predicción",difficulty:2,visual:"resistanceFlow",q:"Con el mismo voltaje, una resistencia menor permite normalmente…",options:["Mayor corriente","Menor corriente siempre","Cero corriente","Menor frecuencia únicamente"],answer:0,explain:"Según la Ley de Ohm, al disminuir R aumenta I si V se mantiene."}
+        ]
+      },
+      ohm: {
+        lesson: `Voltaje, corriente y resistencia están conectados. La relación V = I × R permite descubrir una magnitud cuando se conocen las otras dos. El triángulo de Ohm ayuda a recordar que el voltaje ocupa la parte superior y que corriente y resistencia comparten la base.
+
+Antes de calcular conviene reconocer qué dato falta, seleccionar la forma adecuada y revisar unidades. El resultado también debe tener sentido: con el mismo voltaje, una carga que ofrece más oposición no debería dejar pasar una corriente mayor.`,
+        key: "Identifica la incógnita, reorganiza la relación y verifica si el resultado es razonable.",
+        questions: [
+          {id:"o4",type:"Cálculo",difficulty:2,visual:"ohm",q:"Si circulan 3 A por una resistencia de 4 Ω, ¿qué voltaje hay?",options:["12 V","7 V","1,33 V","0,75 V"],answer:0,explain:"V = I × R = 3 × 4 = 12 V."},
+          {id:"o5",type:"Cálculo",difficulty:2,visual:"formula",q:"Un circuito tiene 10 V y circulan 2 A. ¿Cuál es la resistencia?",options:["5 Ω","20 Ω","12 Ω","0,2 Ω"],answer:0,explain:"R = V/I = 10/2 = 5 Ω."},
+          {id:"o6",type:"Razonamiento",difficulty:3,visual:"resistanceFlow",q:"Se duplica el voltaje y la resistencia no cambia. La corriente idealmente…",options:["Se duplica","Se reduce a la mitad","No cambia","Se vuelve cero"],answer:0,explain:"I = V/R; al duplicar V con R constante, I también se duplica."}
+        ]
+      },
+      series: {
+        lesson: `En una conexión en serie existe una sola ruta. La misma corriente atraviesa cada elemento, mientras el voltaje de la fuente se distribuye entre ellos. Las resistencias equivalentes se obtienen sumando sus valores.
+
+La única ruta también explica su comportamiento ante una falla: cualquier apertura detiene el circuito completo. Al agregar más resistencia en serie, la oposición total aumenta y, para una fuente fija, la corriente general tiende a disminuir.`,
+        key: "Una ruta, una misma corriente y resistencias que se suman.",
+        questions: [
+          {id:"s3",type:"Propiedad",difficulty:1,visual:"series",q:"En un circuito en serie, la corriente que atraviesa cada componente es…",options:["La misma","Siempre cero","La suma de los voltajes","Distinta sin regla"],answer:0,explain:"Al existir una sola ruta, toda la corriente debe pasar por cada elemento."},
+          {id:"s4",type:"Cálculo",difficulty:2,visual:"series",q:"Tres resistencias de 2 Ω, 3 Ω y 5 Ω están en serie. ¿Total?",options:["10 Ω","6 Ω","30 Ω","1 Ω"],answer:0,explain:"En serie se suman: 2 + 3 + 5 = 10 Ω."},
+          {id:"s5",type:"Predicción",difficulty:2,visual:"series",q:"Se añade otra resistencia en serie manteniendo la fuente. La corriente total tiende a…",options:["Disminuir","Aumentar siempre","No cambiar jamás","Convertirse en voltaje"],answer:0,explain:"La resistencia total aumenta y, con voltaje fijo, la corriente disminuye."},
+          {id:"s6",type:"Voltajes",difficulty:2,visual:"series",q:"En serie, la suma de las caídas de voltaje debe corresponder aproximadamente a…",options:["El voltaje de la fuente","Cero en todos los casos","La resistencia total","La frecuencia"],answer:0,explain:"La energía entregada por la fuente se reparte en las caídas de voltaje de los elementos."}
+        ]
+      },
+      parallel: {
+        lesson: `En paralelo existen varias rutas conectadas entre los mismos dos puntos. Cada rama recibe la misma diferencia de potencial de la fuente, pero la corriente total se reparte según la resistencia de cada camino.
+
+Una rama abierta no necesariamente interrumpe las demás. Al añadir una nueva rama se ofrece otra posibilidad de circulación; por ello la resistencia equivalente suele disminuir y la corriente exigida a la fuente puede aumentar. Esta estructura es común en las instalaciones de una vivienda.`,
+        key: "Mismos dos puntos: mismo voltaje; varias rutas: corriente repartida.",
+        questions: [
+          {id:"p3",type:"Propiedad",difficulty:1,visual:"parallel",q:"En un circuito paralelo, cada rama se conecta entre…",options:["Los mismos dos puntos","Un único punto aislado","Diferentes baterías obligatoriamente","Dos resistencias en serie"],answer:0,explain:"Las ramas comparten los mismos nodos de entrada y salida."},
+          {id:"p4",type:"Falla",difficulty:1,visual:"house",q:"Si una rama se abre, las otras ramas normalmente…",options:["Pueden seguir funcionando","Se abren siempre","Pierden todo voltaje","Se convierten en serie"],answer:0,explain:"Cada rama mantiene su propio camino entre los nodos de la fuente."},
+          {id:"p5",type:"Corriente",difficulty:2,visual:"parallel",q:"La corriente total antes de dividirse es igual a…",options:["La suma de las corrientes de las ramas","La corriente de la rama menor solamente","El voltaje dividido por el tiempo","Cero"],answer:0,explain:"En un nodo, la corriente que entra se reparte y la suma de las ramas corresponde al total."},
+          {id:"p6",type:"Predicción",difficulty:3,visual:"parallel",q:"Al agregar una rama en paralelo, la resistencia equivalente normalmente…",options:["Disminuye","Aumenta siempre","Permanece infinita","Se vuelve voltaje"],answer:0,explain:"Una ruta adicional facilita el paso total de corriente y reduce la resistencia equivalente."}
+        ]
+      },
+      power: {
+        lesson: `La potencia indica la rapidez con la que un equipo transforma energía. Se mide en vatios y puede calcularse con P = V × I. Un aparato de mayor potencia puede producir más luz, calor o movimiento por segundo, aunque esto depende de su función y eficiencia.
+
+La energía acumula ese uso durante un tiempo. Por eso una factura no cobra solamente la potencia nominal, sino cuánto tiempo permanecen activos los equipos. Mil vatios equivalen a un kilovatio, y un equipo de un kilovatio funcionando una hora utiliza un kilovatio-hora.`,
+        key: "Potencia describe rapidez; energía combina esa rapidez con el tiempo.",
+        questions: [
+          {id:"pw3",type:"Cálculo",difficulty:2,visual:"power",q:"Un dispositivo de 5 V consume 0,5 A. ¿Qué potencia usa?",options:["2,5 W","10 W","5,5 W","0,1 W"],answer:0,explain:"P = V × I = 5 × 0,5 = 2,5 W."},
+          {id:"pw4",type:"Conversión",difficulty:1,visual:"meter",q:"¿Cuántos vatios son 2 kilovatios?",options:["2000 W","200 W","20 W","0,002 W"],answer:0,explain:"El prefijo kilo equivale a mil: 2 kW = 2000 W."},
+          {id:"pw5",type:"Energía",difficulty:2,visual:"meter",q:"Una lámpara de 100 W funciona 3 horas. Consume…",options:["300 Wh","33 Wh","103 Wh","300 kWh"],answer:0,explain:"E = P × t = 100 W × 3 h = 300 Wh."},
+          {id:"pw6",type:"Comparación",difficulty:2,visual:"power",q:"Dos aparatos tienen la misma potencia. El que funciona más tiempo consume…",options:["Más energía","Menos voltaje obligatoriamente","La misma energía siempre","Cero corriente"],answer:0,explain:"La energía aumenta con el tiempo de funcionamiento cuando la potencia se mantiene."}
+        ]
+      },
+      acdc: {
+        lesson: `En corriente continua, las terminales conservan su polaridad y el movimiento convencional mantiene un sentido. Es la forma típica de pilas, baterías, puertos USB y muchos circuitos electrónicos.
+
+En corriente alterna, la polaridad y el sentido cambian de forma periódica. La cantidad de ciclos por segundo se llama frecuencia y se mide en hercios. Los equipos pueden necesitar convertir AC a DC, y los componentes polarizados deben conectarse respetando sus terminales.`,
+        key: "Observa si el sentido permanece, cambia periódicamente o exige respetar polaridad.",
+        questions: [
+          {id:"ad4",type:"Aplicación",difficulty:1,visual:"acdc",q:"La energía que llega normalmente a una toma doméstica es…",options:["Corriente alterna","Corriente continua de una pila","Electricidad estática","Solo magnetismo"],answer:0,explain:"La red eléctrica distribuye corriente alterna."},
+          {id:"ad5",type:"Frecuencia",difficulty:2,visual:"acdc",q:"La cantidad de ciclos por segundo de una señal alterna se mide en…",options:["Hercios","Ohmios","Vatios-hora","Amperios-hora"],answer:0,explain:"La frecuencia se mide en hercios, símbolo Hz."},
+          {id:"ad6",type:"Polaridad",difficulty:2,visual:"led",q:"Al invertir un LED en un circuito DC sencillo, normalmente…",options:["No conduce y no enciende","Brilla el doble","Se vuelve resistencia sin límites","Cambia la frecuencia de la batería"],answer:0,explain:"El LED conduce principalmente en un sentido y debe respetar la polaridad."}
+        ]
+      },
+      components: {
+        lesson: `Un circuito se construye combinando funciones. Una resistencia limita corriente; un potenciómetro permite ajustar esa oposición; un condensador almacena energía temporalmente y puede suavizar cambios de voltaje. Un diodo favorece un solo sentido y un LED convierte parte de la energía en luz.
+
+Los transistores controlan corrientes y pueden actuar como interruptores rápidos. Los relés usan una señal de control para abrir o cerrar otro circuito, mientras motores, bombillas y zumbadores transforman la energía en efectos físicos. Reconocer la función ayuda a escoger la pieza adecuada.`,
+        key: "No memorices solo la forma: relaciona cada componente con la acción que realiza.",
+        questions: [
+          {id:"cp4",type:"Ajuste",difficulty:1,visual:"resistor",q:"¿Qué componente permite variar manualmente la resistencia?",options:["Potenciómetro","Fusible","Batería","Transformador"],answer:0,explain:"El potenciómetro es una resistencia ajustable."},
+          {id:"cp5",type:"Control",difficulty:2,visual:"relay",q:"¿Qué componente permite controlar una carga mediante contactos accionados eléctricamente?",options:["Relé","Condensador","Cable","LED"],answer:0,explain:"El relé utiliza una señal eléctrica para conmutar contactos de otro circuito."},
+          {id:"cp6",type:"Transformación",difficulty:1,visual:"motor",q:"¿Qué componente convierte electricidad en movimiento?",options:["Motor","Diodo","Resistencia fija","Fusible"],answer:0,explain:"El motor transforma energía eléctrica en energía mecánica."}
+        ]
+      },
+      magnetism: {
+        lesson: `Cuando una corriente atraviesa un conductor aparece un campo magnético a su alrededor. Si el conductor se enrolla, esos campos se combinan y pueden formar un electroimán más intenso. Este efecto permite accionar relés, altavoces y motores.
+
+También existe el proceso inverso: un cambio del campo magnético puede inducir voltaje en un conductor. Los generadores aprovechan movimiento para producir electricidad y los transformadores transfieren energía entre bobinas mediante campos variables.`,
+        key: "Corriente crea campo; campo cambiante puede inducir voltaje.",
+        questions: [
+          {id:"mg3",type:"Efecto",difficulty:1,visual:"magnet",q:"Al circular corriente por una bobina se produce…",options:["Un campo magnético","Una batería nueva","Resistencia cero","Solo luz"],answer:0,explain:"La corriente en la bobina genera un campo magnético."},
+          {id:"mg4",type:"Diseño",difficulty:2,visual:"magnet",q:"Para formar un electroimán sencillo se combina normalmente…",options:["Una bobina y corriente eléctrica","Un aislante sin conductor","Dos fusibles abiertos","Una batería desconectada de todo"],answer:0,explain:"Una bobina recorrida por corriente concentra el campo magnético."},
+          {id:"mg5",type:"Inducción",difficulty:2,visual:"generator",q:"Un campo magnético que cambia cerca de una bobina puede producir…",options:["Voltaje inducido","Aislamiento perfecto","Menos electrones en el universo","Un circuito abierto permanente"],answer:0,explain:"La variación del flujo magnético induce una diferencia de potencial."},
+          {id:"mg6",type:"Aplicación",difficulty:2,visual:"transformer",q:"¿Qué dispositivo usa dos bobinas para modificar niveles de voltaje AC?",options:["Transformador","LED","Pulsador","Potenciómetro"],answer:0,explain:"El transformador transfiere energía entre bobinas mediante un campo magnético variable."}
+        ]
+      },
+      batteries: {
+        lesson: `Una batería se describe por su voltaje y su capacidad. El voltaje indica el impulso eléctrico disponible; la capacidad, expresada en Ah o mAh, ayuda a estimar cuánto tiempo puede entregar una corriente determinada. La autonomía real cambia con la carga, la temperatura y el estado de la batería.
+
+Al conectar celdas en serie se suman sus voltajes. En paralelo se conserva el voltaje y se suma la capacidad disponible, pero solo deben combinarse baterías compatibles, con estados semejantes y protecciones apropiadas.`,
+        key: "Distingue lo que cambia en serie de lo que cambia en paralelo.",
+        questions: [
+          {id:"bt3",type:"Conexión",difficulty:2,visual:"batteries",q:"Dos baterías iguales se conectan en paralelo. El voltaje ideal queda…",options:["Igual al de una batería","Duplicado","Reducido a cero","Multiplicado por la corriente"],answer:0,explain:"En paralelo se mantiene el voltaje nominal y aumenta la capacidad disponible."},
+          {id:"bt4",type:"Capacidad",difficulty:1,visual:"capacity",q:"La unidad mAh describe principalmente…",options:["Capacidad de la batería","Resistencia del cable","Frecuencia de la red","Potencia instantánea"],answer:0,explain:"Los miliamperios-hora expresan capacidad de carga disponible."},
+          {id:"bt5",type:"Autonomía",difficulty:2,visual:"capacity",q:"Idealmente, 3000 mAh alimentando 500 mA durarían cerca de…",options:["6 horas","1,5 horas","500 horas","0,16 horas"],answer:0,explain:"3000/500 = 6 horas en una estimación ideal."},
+          {id:"bt6",type:"Seguridad",difficulty:2,visual:"batteries",q:"Para conectar baterías en paralelo de forma segura deben ser…",options:["Compatibles y con voltajes semejantes","De cualquier tipo y carga","Una nueva y una dañada","De polaridad opuesta"],answer:0,explain:"Diferencias importantes pueden causar corrientes entre baterías y sobrecalentamiento."}
+        ]
+      },
+      meter: {
+        lesson: `El multímetro cambia internamente según la magnitud seleccionada. Para medir voltaje compara dos puntos y se conecta en paralelo. Para medir corriente debe incorporarse al recorrido, por lo que se abre el circuito y se conecta en serie.
+
+La resistencia y la continuidad se comprueban sin alimentación externa. También es importante colocar las puntas en los terminales correctos, elegir AC o DC y comenzar por una escala segura cuando el valor es desconocido. Un error común es dejar la punta en la entrada de amperios y conectarla directamente a una fuente.`,
+        key: "Antes de tocar el circuito revisa función, escala, terminales y forma de conexión.",
+        questions: [
+          {id:"mm4",type:"Continuidad",difficulty:1,visual:"multimeter",q:"La función de continuidad sirve para comprobar si…",options:["Existe un camino conductor","Hay potencia infinita","La batería está en serie","La señal es siempre analógica"],answer:0,explain:"La continuidad indica si dos puntos están eléctricamente conectados."},
+          {id:"mm5",type:"Selección",difficulty:2,visual:"multimeter",q:"Para medir una batería de 9 V debes seleccionar principalmente…",options:["Voltaje DC","Corriente AC","Resistencia con energía","Frecuencia de red"],answer:0,explain:"Una batería entrega corriente continua y se mide en la función de voltaje DC."},
+          {id:"mm6",type:"Peligro",difficulty:3,visual:"currentMeasure",q:"¿Qué sucede si el multímetro en modo corriente se conecta directamente a una batería?",options:["Puede crear un cortocircuito y quemar el fusible","Mide el voltaje con seguridad","Carga la batería","Aumenta su capacidad"],answer:0,explain:"El amperímetro tiene muy baja resistencia y conectado en paralelo puede provocar una corriente peligrosa."}
+        ]
+      },
+      home: {
+        lesson: `En una instalación, la fase es el conductor activo que presenta tensión. El neutro completa el recorrido normal de la corriente y se mantiene cercano al potencial de referencia. La tierra de protección no debería transportar corriente durante el funcionamiento normal.
+
+Si una falla energiza una carcasa metálica, la tierra ofrece un camino de baja impedancia para que actúen las protecciones. Los colores ayudan a identificar conductores, pero nunca deben sustituir una medición y una verificación profesional. Neutro y tierra cumplen funciones diferentes.`,
+        key: "Separa el camino normal de funcionamiento del camino destinado a una falla.",
+        questions: [
+          {id:"h3",type:"Función",difficulty:1,visual:"homeWires",q:"¿Cuál conductor forma parte del retorno normal del circuito?",options:["Neutro","Tierra de protección únicamente","Aislante","Carcasa metálica"],answer:0,explain:"El neutro completa el recorrido normal de la corriente en la instalación."},
+          {id:"h4",type:"Protección",difficulty:2,visual:"ground",q:"Durante el funcionamiento normal, la tierra de protección debería…",options:["No transportar corriente de carga","Reemplazar siempre al neutro","Ser la fase principal","Alimentar los aparatos"],answer:0,explain:"La tierra está destinada principalmente a corrientes de falla, no al retorno habitual."},
+          {id:"h5",type:"Diferencia",difficulty:2,visual:"homeWires",q:"¿Es correcto intercambiar neutro y tierra porque ambos pueden estar cerca de 0 V?",options:["No, cumplen funciones distintas","Sí, siempre son idénticos","Sí, si el cable es verde","Solo en aparatos potentes"],answer:0,explain:"El neutro conduce corriente normal; la tierra es una protección y no debe reemplazarlo."},
+          {id:"h6",type:"Verificación",difficulty:2,visual:"multimeter",q:"Para identificar conductores en una instalación real se debe…",options:["Verificar con instrumentos y procedimientos seguros","Confiar solo en el color","Tocar cada cable","Unirlos para observar chispas"],answer:0,explain:"Los colores pueden estar mal instalados; la identificación debe verificarse de forma segura."}
+        ]
+      },
+      protection: {
+        lesson: `Una sobrecarga aparece cuando un circuito transporta más corriente de la prevista durante cierto tiempo. Un cortocircuito es un camino accidental de resistencia muy baja y suele producir una corriente mucho mayor. Una fuga ocurre cuando parte de la corriente abandona su ruta esperada.
+
+El fusible y el interruptor termomagnético limitan daños por exceso de corriente. El diferencial compara la corriente que sale y regresa para detectar fugas. La puesta a tierra y los protectores de sobretensión atienden riesgos distintos; por eso una instalación necesita varias capas de protección.`,
+        key: "Primero identifica el tipo de falla; después elige la protección adecuada.",
+        questions: [
+          {id:"pr4",type:"Diferencia",difficulty:2,visual:"short",q:"¿Cuál situación describe mejor un cortocircuito?",options:["Contacto accidental que crea una ruta de muy baja resistencia","Muchos aparatos consumiendo dentro del límite","Un interruptor abierto","Una batería almacenada"],answer:0,explain:"El cortocircuito crea un atajo de baja resistencia y una corriente muy elevada."},
+          {id:"pr5",type:"Componente",difficulty:1,visual:"fuse",q:"¿Qué ocurre con un fusible cuando la corriente supera su valor?",options:["Se funde y abre el circuito","Aumenta el voltaje","Almacena energía","Se convierte en relé"],answer:0,explain:"El elemento fusible se calienta, se funde y corta el paso de corriente."},
+          {id:"pr6",type:"Sobretensión",difficulty:2,visual:"protection",q:"¿Qué dispositivo ayuda frente a picos breves de voltaje?",options:["Protector contra sobretensiones","Potenciómetro","Motor","Pulsador"],answer:0,explain:"El protector desvía o limita sobretensiones transitorias para reducir daños."}
+        ]
+      },
+      signals: {
+        lesson: `Una señal representa información mediante una magnitud eléctrica. En una señal analógica, el valor puede variar dentro de un rango, como la tensión entregada por un sensor de luz. En una señal digital se definen zonas que se interpretan como estados, por ejemplo 0 y 1.
+
+Los microcontroladores leen entradas y controlan salidas. Un convertidor analógico-digital transforma un nivel variable en un número; una salida PWM conmuta rápidamente entre estados para producir un efecto promedio, útil al regular brillo o velocidad.`,
+        key: "Pregunta si necesitas un rango de valores, estados definidos o un promedio controlado por pulsos.",
+        questions: [
+          {id:"sg3",type:"Entrada",difficulty:1,visual:"binary",q:"Un pulsador que solo está presionado o suelto se interpreta normalmente como señal…",options:["Digital","Analógica continua","Alterna de red","Magnética"],answer:0,explain:"El pulsador representa dos estados definidos."},
+          {id:"sg4",type:"Conversión",difficulty:2,visual:"signals",q:"¿Qué proceso permite convertir el voltaje variable de un sensor en un número?",options:["Conversión analógico-digital","Cortocircuito","Puesta a tierra","Rectificación mecánica"],answer:0,explain:"Un ADC toma muestras del nivel analógico y lo representa mediante un valor digital."},
+          {id:"sg5",type:"Control",difficulty:2,visual:"signals",q:"La técnica PWM puede utilizarse para controlar…",options:["El brillo de un LED o velocidad de un motor","La capacidad química de una pila","El color del cobre","La longitud de un cable"],answer:0,explain:"PWM modifica el tiempo encendido de pulsos rápidos y cambia el efecto promedio."},
+          {id:"sg6",type:"Rango",difficulty:2,visual:"signals",q:"Una temperatura que puede tomar 21,1 °C, 21,2 °C y muchos valores intermedios es una magnitud…",options:["Analógica","Binaria pura","Sin información","De protección"],answer:0,explain:"Puede variar de forma continua dentro de un rango."}
+        ]
+      },
+      safety: {
+        lesson: `La seguridad comienza antes de intervenir. Se debe desconectar la fuente, impedir una reconexión accidental y verificar con un instrumento adecuado que no exista tensión. Las manos secas, las herramientas aisladas y el orden del espacio reducen riesgos adicionales.
+
+La gravedad de un contacto depende de la corriente que atraviesa el cuerpo, su recorrido y el tiempo. Los condensadores pueden conservar energía después de apagar un equipo. Para aprender, conviene usar baterías y fuentes de bajo voltaje; las instalaciones domésticas requieren formación, protecciones y supervisión profesional.`,
+        key: "Desconecta, bloquea, verifica y trabaja primero con bajo voltaje.",
+        questions: [
+          {id:"sf4",type:"Verificación",difficulty:2,visual:"multimeter",q:"Después de desconectar una fuente, ¿qué acción aumenta la seguridad?",options:["Verificar ausencia de tensión","Suponer que ya no hay energía","Tocar el conductor","Puentea el fusible"],answer:0,explain:"La desconexión debe confirmarse con un instrumento y procedimiento apropiados."},
+          {id:"sf5",type:"Energía almacenada",difficulty:2,visual:"capacitor",q:"¿Qué componente puede conservar carga después de apagar un equipo?",options:["Condensador","Interruptor abierto","Cable aislado sin fuente","Pulsador"],answer:0,explain:"Un condensador puede mantener energía almacenada y debe descargarse de forma segura."},
+          {id:"sf6",type:"Riesgo corporal",difficulty:3,visual:"wetHands",q:"Las manos mojadas aumentan el riesgo porque normalmente…",options:["Reducen la resistencia de contacto","Eliminan el voltaje","Abren el circuito","Detienen los electrones"],answer:0,explain:"La humedad puede disminuir la resistencia de la piel y facilitar una corriente peligrosa."}
+        ]
+      }
+    };
+
+    const lessonExpansions = {
+      atomos: `Para interpretar situaciones eléctricas conviene observar si hubo transferencia, acumulación o movimiento de electrones. Un objeto no necesita ganar protones para cargarse: normalmente son los electrones los que pasan de un material a otro. También es útil comparar los signos de las cargas y pensar cómo cambiaría la interacción si una de ellas fuera neutra o tuviera el signo contrario.`,
+      materials: `La elección de un material depende de la función que debe cumplir. En el interior de un cable se busca que la corriente encuentre poca oposición; en la cubierta se necesita lo contrario para separar al usuario del conductor. Algunos materiales cambian su comportamiento con la humedad, la temperatura o las impurezas, por lo que no basta con memorizar una lista: hay que analizar el uso y las condiciones.`,
+      circuit: `Al estudiar un circuito, sigue el recorrido desde un terminal de la fuente, atraviesa cada elemento y comprueba que exista un regreso al otro terminal. Después identifica qué componente entrega energía, cuál la transforma y cuál controla el paso. Un dibujo puede parecer completo, pero una separación pequeña, una conexión equivocada o un camino demasiado directo cambia por completo su funcionamiento.`,
+      current: `Para comparar corrientes, imagina que observas una sección del conductor durante el mismo intervalo de tiempo. Si atraviesa más carga, el valor de corriente es mayor. La corriente no se “gasta” simplemente al pasar por un receptor; la energía se transforma mientras las cargas continúan su recorrido. También debes distinguir el valor expresado en amperios de sus submúltiplos, como los miliamperios.`,
+      voltage: `El voltaje siempre se interpreta entre dos puntos. Una fuente puede mantener una diferencia incluso cuando el circuito está abierto, aunque en ese estado no exista una corriente continua por la carga. Al comparar baterías o puntos de un circuito, piensa cuál dispone de mayor diferencia de energía por unidad de carga y cómo esa diferencia podría impulsar el movimiento si se completa el camino.`,
+      resistance: `La resistencia no es únicamente un componente con bandas de colores; también está presente en cables, motores, lámparas y contactos. Para razonar sobre ella, compara materiales, longitudes y grosores. Si dos conductores son del mismo material, el más largo suele dificultar más el paso y el más grueso suele facilitarlo. Después relaciona ese cambio con la corriente cuando la fuente mantiene el mismo voltaje.`,
+      ohm: `Antes de elegir una fórmula, identifica qué magnitudes conoces y cuál necesitas hallar. Comprueba también que las unidades sean compatibles: voltios, amperios y ohmios. El resultado debe tener sentido físico; por ejemplo, con un voltaje fijo, una resistencia mayor no debería producir una corriente mayor. Las preguntas combinarán cálculos sencillos, lectura de relaciones y predicciones sin necesidad de operaciones extensas.`,
+      series: `Una conexión en serie puede reconocerse porque solo existe una ruta de circulación. Recorre el circuito con el dedo: si no puedes escoger entre dos caminos, probablemente sea serie. Esta estructura permite anticipar qué ocurre al abrir un punto, cómo se reparten las caídas de voltaje y cómo cambia la resistencia equivalente cuando se agregan más elementos uno después de otro.`,
+      parallel: `En paralelo, cada rama conecta los mismos dos nodos principales. Esto explica por qué las ramas comparten voltaje, aunque puedan transportar corrientes distintas. Para resolver los retos, identifica primero los puntos comunes, luego cuenta las rutas disponibles y analiza qué ocurriría si una rama se abre. Añadir caminos suele permitir más corriente total a la fuente, no menos.`,
+      power: `Potencia y energía no significan lo mismo. La potencia describe la rapidez con la que ocurre una transformación; la energía acumula ese efecto durante un tiempo. Un aparato potente puede consumir mucha energía si permanece encendido, pero uno menos potente también puede superar ese consumo si funciona durante muchas más horas. Observa siempre las unidades para decidir qué relación corresponde.`,
+      acdc: `Para distinguir los dos tipos de corriente, observa si la polaridad permanece definida o cambia periódicamente. Las baterías alimentan muchos circuitos con una dirección estable, mientras la red eléctrica alterna su sentido con una frecuencia determinada. Algunos equipos convierten una forma en otra mediante fuentes, rectificadores o inversores, por lo que la entrada y la salida no siempre son del mismo tipo.`,
+      components: `Cada componente se entiende mejor por la acción que realiza: limitar, almacenar, permitir un sentido, controlar, conmutar o transformar energía. En un circuito real, varios componentes cooperan; un LED puede necesitar una resistencia, y un transistor puede permitir que una señal pequeña controle una carga mayor. Para inferir la respuesta, relaciona el símbolo o la situación con la función principal del elemento.`,
+      magnetism: `La electricidad y el magnetismo se conectan en ambos sentidos. Una corriente puede producir un campo magnético y un campo cambiante puede originar un voltaje. La forma del conductor, el número de espiras y el movimiento relativo influyen en el efecto. Los retos pedirán reconocer qué dispositivos aprovechan cada transformación y qué cambio podría intensificar o disminuir el fenómeno.`,
+      batteries: `No confundas voltaje con capacidad. Dos baterías pueden tener el mismo voltaje y durar tiempos diferentes, o tener capacidades parecidas y entregar voltajes distintos. Antes de combinar celdas, identifica qué magnitud se pretende aumentar y verifica que sean compatibles. La autonomía calculada es una aproximación, porque el consumo real, la temperatura y el estado de las celdas modifican el resultado.`,
+      meter: `Medir correctamente exige decidir primero qué magnitud se busca. Después se seleccionan función, escala y terminales del instrumento, y finalmente se elige la forma de conexión. El voltímetro compara puntos; el amperímetro debe formar parte del recorrido; el ohmímetro utiliza su propia fuente y por eso requiere el circuito sin energía. Una conexión equivocada puede alterar el circuito o dañar el fusible del equipo.`,
+      home: `En una instalación doméstica, los conductores no son intercambiables aunque algunos puedan mostrar tensiones cercanas en condiciones normales. La fase participa en la alimentación, el neutro en el retorno previsto y la tierra en la protección ante fallas. Los retos se resolverán pensando qué camino pertenece al funcionamiento cotidiano y cuál debe actuar solamente cuando aparece una condición peligrosa.`,
+      protection: `Las protecciones no responden todas al mismo problema. Algunas detectan exceso de corriente, otras comparan la corriente que sale con la que regresa y otras limitan picos de voltaje. Para elegir correctamente, primero describe la falla: ¿es prolongada, repentina, una fuga hacia una carcasa o una sobretensión breve? Después relaciona ese comportamiento con el dispositivo diseñado para interrumpir o desviar el riesgo.`,
+      signals: `Una señal eléctrica transporta información además de energía. Algunas variables necesitan muchos valores posibles; otras se representan mejor mediante estados definidos. Los sistemas digitales pueden medir señales variables mediante conversión y pueden producir efectos intermedios usando pulsos rápidos. En las preguntas deberás reconocer la naturaleza de una entrada o salida y deducir qué método permite interpretarla o controlarla.`,
+      safety: `Antes de cualquier decisión técnica, evalúa el riesgo. Desconectar es el primer paso, pero también se debe evitar una reconexión, comprobar la ausencia de tensión y considerar la energía almacenada. El cuerpo puede convertirse en parte del circuito, especialmente con humedad o aislamiento deficiente. Por eso los retos priorizan procedimientos seguros y rechazan acciones improvisadas, incluso cuando parezcan rápidas o sencillas.`
+    };
+
+    modules.forEach(module => {
+      const extra = contentEnhancements[module.id];
+      if (!extra) return;
+      module.lesson = extra.lesson;
+      module.key = extra.key;
+      module.questions.push(...extra.questions);
+      const expansion = lessonExpansions[module.id];
+      if (expansion) module.lesson = `${module.lesson}\n\n${expansion}`;
+    });
+
+    const FINAL_BADGE = "gran_reto_final";
+    const finalChallenge = {
+      id: "final", icon: "🏆", title: "Gran Reto Final", visual: "ohm",
+      subtitle: "Todas las preguntas de electricidad, mezcladas en una sola prueba.",
+      lesson: `Has recorrido los conceptos esenciales de electricidad. Ahora deberás conectarlos sin saber de antemano qué tema aparecerá: una pregunta puede pedirte interpretar una carga, la siguiente analizar un circuito y otra elegir una medida o una protección segura.\n\nEl reto reúne todas las preguntas de las 19 misiones y cambia su orden en cada intento. Las opciones también se reorganizan. No se trata solo de recordar palabras: observa el gráfico, identifica las magnitudes, descarta alternativas que contradigan el funcionamiento del circuito y usa las relaciones aprendidas.\n\nSi cometes un error, esa idea regresará al menos dos veces dentro del reto y quedará programada para un repaso posterior. Avanza con calma: completar esta prueba demuestra que puedes combinar los conocimientos, no únicamente reconocerlos por separado.`,
+      key: "Observa, relaciona conceptos, comprueba unidades y prioriza siempre la seguridad.",
+      questions: []
+    };
+    finalChallenge.questions = modules.flatMap(module => module.questions);
+
+
+    const levels = [
+      {name:"Chispa", min:0}, {name:"Explorador", min:100}, {name:"Técnico", min:250}, {name:"Inventor", min:450},
+      {name:"Ingeniero", min:700}, {name:"Maestro eléctrico", min:1050}
+    ];
+
+    let db = loadDB();
+    let currentUserId = sessionStorage.getItem(SESSION_KEY) || "";
+    let game = null;
+
+    const $ = (id) => document.getElementById(id);
+    const screens = { login: $("loginScreen"), dashboard: $("dashboardScreen"), game: $("gameScreen") };
+
+    function loadDB() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (parsed && parsed.users) return parsed;
+      } catch (_) {}
+      return { users: {}, version: 2 };
+    }
+
+    function cloudEnabled() {
+      const urlOk = /^https:\/\/.+\.supabase\.co$/i.test(CLOUD_CONFIG.supabaseUrl || "");
+      const key = CLOUD_CONFIG.supabaseAnonKey || "";
+      const keyOk = /^eyJ/.test(key) || /^sb_publishable_/.test(key);
+      return urlOk && keyOk;
+    }
+
+    async function hashPin(pin) {
+      const bytes = new TextEncoder().encode(`ElectroQuest::${pin}`);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2,"0")).join("");
+    }
+
+    async function cloudRequest(functionName, body = {}) {
+      const response = await fetch(`${CLOUD_CONFIG.supabaseUrl}/rest/v1/rpc/${functionName}`, {
+        method: "POST",
+        headers: {
+          "apikey": CLOUD_CONFIG.supabaseAnonKey,
+          "Authorization": `Bearer ${CLOUD_CONFIG.supabaseAnonKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+      const text = await response.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
+      if (!response.ok) {
+        const message = data?.message || data?.hint || String(data || `Error ${response.status}`);
+        throw new Error(message);
+      }
+      cloudOnline = true;
+      return data;
+    }
+
+    function normalizeCloudUser(raw) {
+      return {
+        id: raw.id,
+        name: raw.name,
+        course: raw.course,
+        pin: "cloud",
+        xp: Number(raw.xp || 0),
+        completed: Array.isArray(raw.completed) ? raw.completed : [],
+        unlocked: Number(raw.unlocked || 1),
+        correct: Number(raw.correct || 0),
+        attempts: Number(raw.attempts || 0),
+        bestStreak: Number(raw.bestStreak ?? raw.best_streak ?? 0),
+        questionStats: raw.questionStats || raw.question_stats || {},
+        reviews: Array.isArray(raw.reviews) ? raw.reviews : [],
+        badges: Array.isArray(raw.badges) ? raw.badges : [],
+        createdAt: Number(raw.createdAt ?? raw.created_at ?? Date.now()),
+        lastSeen: Number(raw.lastSeen ?? raw.last_seen ?? Date.now())
+      };
+    }
+
+    function mergeProgress(localUser, remoteUser) {
+      if (!localUser) return remoteUser;
+      const mergedStats = {...(remoteUser.questionStats || {})};
+      Object.entries(localUser.questionStats || {}).forEach(([qid, stat]) => {
+        const current = mergedStats[qid] || {correct:0,wrong:0,mastered:false};
+        mergedStats[qid] = {
+          correct:Math.max(Number(current.correct || 0), Number(stat.correct || 0)),
+          wrong:Math.max(Number(current.wrong || 0), Number(stat.wrong || 0)),
+          mastered:Boolean(current.mastered || stat.mastered)
+        };
+      });
+      const reviewMap = new Map();
+      [...(remoteUser.reviews || []), ...(localUser.reviews || [])].forEach(r => {
+        const key = `${r.qid}:${r.dueAt}`;
+        reviewMap.set(key, r);
+      });
+      return {
+        ...remoteUser,
+        xp:Math.max(remoteUser.xp || 0, localUser.xp || 0),
+        completed:[...new Set([...(remoteUser.completed || []), ...(localUser.completed || [])])],
+        unlocked:Math.max(remoteUser.unlocked || 1, localUser.unlocked || 1),
+        correct:Math.max(remoteUser.correct || 0, localUser.correct || 0),
+        attempts:Math.max(remoteUser.attempts || 0, localUser.attempts || 0),
+        bestStreak:Math.max(remoteUser.bestStreak || 0, localUser.bestStreak || 0),
+        questionStats:mergedStats,
+        reviews:[...reviewMap.values()],
+        badges:[...new Set([...(remoteUser.badges || []), ...(localUser.badges || [])])],
+        createdAt:Math.min(remoteUser.createdAt || Date.now(), localUser.createdAt || Date.now()),
+        lastSeen:Date.now()
+      };
+    }
+
+    function publicUserPayload(user) {
+      return {
+        id:user.id, name:user.name, course:user.course, xp:user.xp,
+        completed:user.completed, unlocked:user.unlocked, correct:user.correct,
+        attempts:user.attempts, bestStreak:user.bestStreak,
+        questionStats:user.questionStats, reviews:user.reviews, badges:user.badges,
+        createdAt:user.createdAt, lastSeen:user.lastSeen
+      };
+    }
+
+    function queueCloudSave() {
+      if (!cloudEnabled() || !currentUserId || !cloudPinHash) return;
+      clearTimeout(cloudSaveTimer);
+      cloudSaveTimer = setTimeout(syncCurrentUser, 650);
+    }
+
+    async function syncCurrentUser() {
+      const user = getUser();
+      if (!user || !cloudEnabled() || !cloudPinHash) return;
+      try {
+        await cloudRequest("eq_save", {p_id:user.id, p_pin_hash:cloudPinHash, p_data:publicUserPayload(user)});
+        if ($("rankingScope")) $("rankingScope").textContent = "Global · progreso sincronizado";
+      } catch (error) {
+        cloudOnline = false;
+        if ($("rankingScope")) $("rankingScope").textContent = "Modo local · pendiente de sincronizar";
+        console.warn("No se pudo sincronizar ElectroQuest:", error);
+      }
+    }
+
+    function saveDB() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      queueCloudSave();
+    }
+    function normalize(text) { return text.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " "); }
+    function makeUserId(name, course) { return `${normalize(name)}__${normalize(course)}`; }
+    function getUser() { return db.users[currentUserId] || null; }
+
+    function newUser(name, course, pin) {
+      return {
+        id: makeUserId(name, course), name: name.trim(), course: course.trim(), pin,
+        xp: 0, completed: [], unlocked: 1, correct: 0, attempts: 0, bestStreak: 0,
+        questionStats: {}, reviews: [], badges: [], createdAt: Date.now(), lastSeen: Date.now()
+      };
+    }
+
+    function showScreen(name) {
+      Object.entries(screens).forEach(([key, el]) => el.classList.toggle("hidden", key !== name));
+      $("topUser").classList.toggle("hidden", name === "login");
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    async function login(name, course, pin) {
+      const id = makeUserId(name, course);
+      if (cloudEnabled()) {
+        try {
+          const pinHash = await hashPin(pin);
+          const remote = await cloudRequest("eq_login", {p_id:id, p_name:name.trim(), p_course:course.trim(), p_pin_hash:pinHash});
+          const user = mergeProgress(db.users[id], normalizeCloudUser(remote));
+          db.users[id] = user;
+          currentUserId = id;
+          cloudPinHash = pinHash;
+          sessionStorage.setItem(SESSION_KEY, id);
+          sessionStorage.setItem(SESSION_PIN_HASH_KEY, pinHash);
+          user.lastSeen = Date.now();
+          saveDB();
+          return {ok:true, cloud:true};
+        } catch (error) {
+          if (/PIN_INCORRECTO|pin/i.test(error.message)) return {ok:false, message:"El PIN no coincide con este perfil global."};
+          console.warn("Ingreso global no disponible; se usará el respaldo local.", error);
+        }
+      }
+
+      let user = db.users[id];
+      if (user && user.pin !== pin && user.pin !== "cloud") return { ok:false, message:"El PIN no coincide con este perfil local." };
+      if (!user) { user = newUser(name, course, pin); db.users[id] = user; }
+      user.lastSeen = Date.now();
+      currentUserId = id;
+      cloudPinHash = cloudEnabled() ? await hashPin(pin) : "";
+      sessionStorage.setItem(SESSION_KEY, id);
+      if (cloudPinHash) sessionStorage.setItem(SESSION_PIN_HASH_KEY, cloudPinHash);
+      saveDB();
+      return {ok:true, cloud:false, warning:cloudEnabled() ? "Entraste en modo local porque no fue posible conectar con el ranking global." : "Configura Supabase para activar el ranking global."};
+    }
+
+    function logout() {
+      currentUserId = "";
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESSION_PIN_HASH_KEY);
+      cloudPinHash = "";
+      game = null;
+      showScreen("login");
+      $("loginForm").reset();
+    }
+
+    function currentLevel(xp) {
+      let idx = 0;
+      levels.forEach((l, i) => { if (xp >= l.min) idx = i; });
+      const current = levels[idx];
+      const next = levels[idx + 1] || null;
+      return { idx, current, next };
+    }
+
+    function completedCount(user) {
+      return Array.isArray(user.completed) ? user.completed.length : Number(user.completed_count || 0);
+    }
+
+    function completedModuleCount(user) {
+      const completed = new Set(Array.isArray(user.completed) ? user.completed : []);
+      return modules.reduce((total, module) => total + (completed.has(module.id) ? 1 : 0), 0);
+    }
+
+    function finalChallengeCompleted(user) {
+      return Array.isArray(user.badges) && user.badges.includes(FINAL_BADGE);
+    }
+
+    function leaderboard() {
+      return Object.values(db.users).sort((a,b) => completedCount(b) - completedCount(a) || b.xp - a.xp || b.correct - a.correct);
+    }
+
+    async function loadGlobalLeaderboard(userId) {
+      if (!cloudEnabled()) {
+        $("rankingScope").textContent = "Local · configura Supabase para compartirlo";
+        return;
+      }
+      $("rankingScope").textContent = "Cargando ranking global…";
+      try {
+        const ranks = await cloudRequest("eq_leaderboard", {});
+        renderRanking(Array.isArray(ranks) ? ranks : [], userId);
+        const rank = ranks.findIndex(u => u.id === userId) + 1;
+        if (rank) $("statRank").textContent = `#${rank}`;
+        $("rankingScope").textContent = `Global · ${ranks.length} participante${ranks.length === 1 ? "" : "s"}`;
+      } catch (error) {
+        cloudOnline = false;
+        $("rankingScope").textContent = "Modo local · sin conexión global";
+        console.warn(error);
+      }
+    }
+
+    function renderDashboard() {
+      const user = getUser();
+      if (!user) return logout();
+      user.lastSeen = Date.now();
+      saveDB();
+      showScreen("dashboard");
+
+      $("topName").textContent = user.name;
+      $("topCourse").textContent = `Curso ${user.course}`;
+      $("topAvatar").textContent = user.name.charAt(0).toUpperCase();
+      $("welcomeName").textContent = user.name.split(" ")[0];
+
+      const lvl = currentLevel(user.xp);
+      $("levelBadge").textContent = `Nivel ${lvl.idx + 1} · ${lvl.current.name}`;
+      const from = lvl.current.min;
+      const to = lvl.next ? lvl.next.min : Math.max(from + 300, user.xp + 1);
+      const pct = lvl.next ? ((user.xp - from)/(to-from))*100 : 100;
+      $("xpFill").style.width = `${Math.max(0,Math.min(100,pct))}%`;
+      $("xpLabel").textContent = `${user.xp} XP`;
+      $("nextLevelLabel").textContent = lvl.next ? `${lvl.next.min - user.xp} XP para ${lvl.next.name}` : "Nivel máximo alcanzado";
+
+      const accuracy = user.attempts ? Math.round(user.correct / user.attempts * 100) : 0;
+      const ranks = leaderboard();
+      const rank = ranks.findIndex(u => u.id === user.id) + 1;
+      const completedModules = completedModuleCount(user);
+      const finalDone = finalChallengeCompleted(user);
+      $("statMissions").textContent = `${completedModules}/${modules.length}${finalDone ? " 🏆" : ""}`;
+      $("statAccuracy").textContent = `${accuracy}%`;
+      $("statStreak").textContent = `${user.bestStreak} 🔥`;
+      $("statRank").textContent = `#${rank || 1}`;
+
+      const nextIndex = modules.findIndex(module => !user.completed.includes(module.id));
+      $("nextMissionText").textContent = completedModules === modules.length
+        ? finalDone
+          ? "¡Dominaste el Gran Reto Final! Puedes repetirlo para mejorar tu precisión."
+          : "¡El Gran Reto Final está desbloqueado! Todas las preguntas te esperan."
+        : `Siguiente misión: ${modules[Math.max(0, nextIndex)].title}.`;
+
+      renderRanking(ranks, user.id);
+      loadGlobalLeaderboard(user.id);
+      renderMissions(user);
+      renderReviews(user);
+      $("continueBtn").textContent = completedModules === modules.length
+        ? finalDone ? "Repetir Gran Reto Final" : "Iniciar Gran Reto Final"
+        : "Continuar aventura";
+    }
+
+    function renderRanking(ranks, userId) {
+      const list = $("rankingList"); list.innerHTML = "";
+      if (!ranks.length) { list.innerHTML = `<p style="color:var(--muted)">Aún no hay participantes.</p>`; return; }
+      const entries = ranks.slice(0, 7).map((u, index) => ({u, position:index + 1}));
+      const ownIndex = ranks.findIndex(u => u.id === userId);
+      if (ownIndex >= 7) entries.push({u:ranks[ownIndex], position:ownIndex + 1});
+      entries.forEach(({u, position}) => {
+        const row = document.createElement("div"); row.className = `rank-row ${u.id === userId ? "me" : ""}`;
+        const medal = position===1 ? "🥇" : position===2 ? "🥈" : position===3 ? "🥉" : `${position}`;
+        row.innerHTML = `<div class="medal">${medal}</div><div><strong>${escapeHTML(u.name)}</strong><small>${escapeHTML(u.course)} · ${completedCount(u)} misiones</small></div><strong>${u.xp} XP</strong>`;
+        list.appendChild(row);
+      });
+    }
+
+    function renderMissions(user) {
+      const grid = $("missionGrid"); grid.innerHTML = "";
+      const nextModuleIndex = modules.findIndex(module => !user.completed.includes(module.id));
+      modules.forEach((m, i) => {
+        const completed = user.completed.includes(m.id);
+        const locked = i >= user.unlocked;
+        const card = document.createElement("article");
+        card.className = `mission ${completed ? "completed" : ""} ${locked ? "locked" : ""}`;
+        const status = completed ? "✓ Superada" : locked ? "🔒 Bloqueada" : i === nextModuleIndex ? "⚡ Siguiente" : "Disponible";
+        card.innerHTML = `<div class="mission-number">${String(i+1).padStart(2,"0")}</div><div class="mission-icon">${m.icon}</div><h4>${m.title}</h4><p>${m.subtitle}</p><div class="mission-bottom"><span class="mission-status">${status}</span><button ${locked ? "disabled" : ""}>${completed ? "Repetir" : "Jugar"}</button></div>`;
+        if (!locked) card.querySelector("button").addEventListener("click", () => startModule(i));
+        grid.appendChild(card);
+      });
+
+      const finalUnlocked = completedModuleCount(user) === modules.length;
+      const finalDone = finalChallengeCompleted(user);
+      const finalCard = document.createElement("article");
+      finalCard.className = `mission final-challenge ${finalDone ? "completed" : ""} ${finalUnlocked ? "" : "locked"}`;
+      const finalStatus = finalDone ? "🏆 Superado" : finalUnlocked ? "⚡ Desbloqueado" : `🔒 Completa ${modules.length - completedModuleCount(user)} misión${modules.length - completedModuleCount(user) === 1 ? "" : "es"}`;
+      finalCard.innerHTML = `<div class="mission-number">FINAL</div><div class="mission-icon">🏆</div><h4>Gran Reto Final</h4><p>${finalChallenge.questions.length} preguntas de las 19 misiones, mezcladas en un orden diferente en cada intento.</p><div class="mission-bottom"><span class="mission-status">${finalStatus}</span><button ${finalUnlocked ? "" : "disabled"}>${finalDone ? "Repetir reto" : "Aceptar reto"}</button></div>`;
+      if (finalUnlocked) finalCard.querySelector("button").addEventListener("click", startFinalChallenge);
+      grid.appendChild(finalCard);
+    }
+
+    function dueReviews(user) { return user.reviews.filter(r => r.dueAt <= Date.now()); }
+    function renderReviews(user) {
+      const due = dueReviews(user);
+      $("reviewCard").classList.toggle("hidden", due.length === 0);
+      $("reviewText").textContent = due.length === 1 ? "Hay 1 concepto listo para volver a practicar." : `Hay ${due.length} conceptos listos para volver a practicar.`;
+    }
+
+    function shuffled(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function shuffledQuestion(question) {
+      const choices = shuffled(question.options.map((text, originalIndex) => ({text, originalIndex})));
+      return {
+        ...question,
+        options:choices.map(choice => choice.text),
+        answer:choices.findIndex(choice => choice.originalIndex === question.answer)
+      };
+    }
+
+    function startModule(index) {
+      const user = getUser();
+      if (!user || index >= user.unlocked) return;
+      const module = modules[index];
+      game = {
+        mode:"module", moduleIndex:index, module, queue: shuffled(module.questions.map(q => ({qid:q.id, repeat:0}))),
+        cursor:0, current:null, sessionXp:0, correct:0, attempts:0, streak:0, reviewed:new Set(), answered:false
+      };
+      showScreen("game");
+      showLesson(module, index);
+      updateHUD();
+    }
+
+    function startFinalChallenge() {
+      const user = getUser();
+      if (!user || completedModuleCount(user) < modules.length) {
+        return toast("Completa primero las 19 misiones para desbloquear el reto final.");
+      }
+      game = {
+        mode:"final", moduleIndex:null, module:finalChallenge,
+        queue:shuffled(finalChallenge.questions.map(q => ({qid:q.id, repeat:0}))),
+        cursor:0, current:null, sessionXp:0, correct:0, attempts:0, streak:0, reviewed:new Set(), answered:false
+      };
+      showScreen("game");
+      showLesson(finalChallenge, modules.length);
+      updateHUD();
+    }
+
+    function startReview() {
+      const user = getUser();
+      const due = dueReviews(user);
+      if (!due.length) return toast("No hay repasos pendientes ahora.");
+      const unique = [...new Set(due.map(r => r.qid))];
+      game = { mode:"review", moduleIndex:null, module:null, queue:unique.map(qid=>({qid,repeat:1})), cursor:0, current:null, sessionXp:0, correct:0, attempts:0, streak:0, reviewed:new Set(), answered:false };
+      user.reviews = user.reviews.filter(r => !unique.includes(r.qid) || r.dueAt > Date.now());
+      saveDB();
+      showScreen("game");
+      nextQuestion();
+      updateHUD();
+    }
+
+    function showLesson(module, index) {
+      $("lessonView").classList.remove("hidden");
+      $("questionView").classList.add("hidden");
+      $("resultView").classList.add("hidden");
+      $("lessonMissionNo").textContent = game?.mode === "final"
+        ? `Gran Reto Final · ${finalChallenge.questions.length} preguntas`
+        : `Misión ${index + 1}`;
+      $("lessonTitle").textContent = module.title;
+      $("lessonText").textContent = module.lesson;
+      $("lessonKey").textContent = module.key;
+      $("lessonVisual").innerHTML = visualSVG(module.visual);
+      $("gameProgressFill").style.width = "4%";
+    }
+
+    function findQuestion(qid) {
+      for (let mi=0; mi<modules.length; mi++) {
+        const qi = modules[mi].questions.findIndex(q => q.id === qid);
+        if (qi >= 0) return {question:modules[mi].questions[qi], module:modules[mi], moduleIndex:mi};
+      }
+      return null;
+    }
+
+    function nextQuestion() {
+      if (!game) return;
+      if (game.cursor >= game.queue.length) return finishGame();
+      const item = game.queue[game.cursor++];
+      const found = findQuestion(item.qid);
+      if (!found) return nextQuestion();
+      game.current = {...found, question:shuffledQuestion(found.question), repeat:item.repeat};
+      game.answered = false;
+      renderQuestion(game.current);
+      updateHUD();
+    }
+
+    function renderQuestion(ctx) {
+      $("lessonView").classList.add("hidden");
+      $("resultView").classList.add("hidden");
+      $("questionView").classList.remove("hidden");
+      const q = ctx.question;
+      $("questionType").textContent = ctx.repeat
+        ? "Repaso inteligente"
+        : game?.mode === "final" ? `Gran Reto · ${q.type}` : q.type;
+      $("difficulty").textContent = `${"⚡".repeat(q.difficulty)} ${q.difficulty===1?"Nivel básico":q.difficulty===2?"Nivel medio":"Nivel final"}`;
+      $("questionText").textContent = q.q;
+      $("questionVisual").innerHTML = visualSVG(q.visual);
+      $("feedback").className = "feedback";
+      $("feedback").innerHTML = "";
+      $("nextQuestionBtn").classList.add("hidden");
+      const answers = $("answers"); answers.innerHTML = "";
+      q.options.forEach((option, index) => {
+        const btn = document.createElement("button"); btn.className = "answer";
+        btn.innerHTML = `<span class="answer-letter">${String.fromCharCode(65+index)}</span><span>${escapeHTML(option)}</span>`;
+        btn.addEventListener("click", () => answerQuestion(index, btn));
+        answers.appendChild(btn);
+      });
+      const progress = game.queue.length ? ((game.cursor-1)/game.queue.length)*100 : 0;
+      $("gameProgressFill").style.width = `${Math.max(5,progress)}%`;
+    }
+
+    function answerQuestion(selected, button) {
+      if (!game || game.answered) return;
+      game.answered = true;
+      const user = getUser();
+      const q = game.current.question;
+      const correct = selected === q.answer;
+      game.attempts++; user.attempts++;
+      const stats = user.questionStats[q.id] || {correct:0, wrong:0, mastered:false};
+
+      [...$("answers").children].forEach((b, i) => {
+        b.disabled = true;
+        if (i === q.answer) b.classList.add("correct");
+      });
+
+      const feedback = $("feedback");
+      if (correct) {
+        button.classList.add("correct");
+        game.correct++; user.correct++; game.streak++;
+        stats.correct++;
+        const base = game.current.repeat ? 7 : 12;
+        const bonus = Math.min(8, game.streak);
+        const gain = base + bonus;
+        game.sessionXp += gain; user.xp += gain;
+        user.bestStreak = Math.max(user.bestStreak, game.streak);
+        if (game.current.repeat) game.reviewed.add(q.id);
+        if (stats.wrong > 0 && stats.correct >= 2) stats.mastered = true;
+        feedback.className = "feedback good show";
+        feedback.innerHTML = `<strong>✅ ¡Correcto! +${gain} XP</strong>${escapeHTML(q.explain)}`;
+        playTone(620, .09); setTimeout(()=>playTone(820,.1),80);
+      } else {
+        button.classList.add("wrong");
+        game.streak = 0; stats.wrong++;
+        scheduleRepetitions(q.id);
+        feedback.className = "feedback bad show";
+        feedback.innerHTML = `<strong>🧠 Este concepto volverá a aparecer dos veces.</strong>${escapeHTML(q.explain)}`;
+        playTone(180,.14);
+      }
+      user.questionStats[q.id] = stats;
+      saveDB(); updateHUD();
+      $("nextQuestionBtn").classList.remove("hidden");
+      $("nextQuestionBtn").textContent = game.cursor >= game.queue.length ? "Ver resultado →" : "Siguiente reto →";
+    }
+
+    function scheduleRepetitions(qid) {
+      const user = getUser();
+      const remaining = game.queue.slice(game.cursor);
+      const alreadyUpcoming = remaining.filter(x => x.qid === qid).length;
+      const needed = Math.max(0, 2 - alreadyUpcoming);
+      const offsets = [2, 6];
+      for (let i=0; i<needed; i++) {
+        const pos = Math.min(game.cursor + offsets[i], game.queue.length);
+        game.queue.splice(pos, 0, {qid, repeat:i+1});
+      }
+      const existingFuture = user.reviews.some(r => r.qid === qid && r.dueAt > Date.now());
+      if (!existingFuture) user.reviews.push({qid, dueAt:Date.now()+REVIEW_DELAY_MS, reason:"error"});
+    }
+
+    function finishGame() {
+      const user = getUser();
+      if (!game) return;
+      let newlyCompleted = false;
+      if (game.mode === "module") {
+        const mid = game.module.id;
+        if (!user.completed.includes(mid)) {
+          user.completed.push(mid); newlyCompleted = true; user.xp += 25; game.sessionXp += 25;
+          user.unlocked = Math.min(modules.length, Math.max(user.unlocked, game.moduleIndex + 2));
+        }
+      } else if (game.mode === "final") {
+        user.badges = Array.isArray(user.badges) ? user.badges : [];
+        if (!user.badges.includes(FINAL_BADGE)) {
+          user.badges.push(FINAL_BADGE);
+          user.xp += 150;
+          game.sessionXp += 150;
+          newlyCompleted = true;
+        }
+      }
+      saveDB();
+      $("lessonView").classList.add("hidden"); $("questionView").classList.add("hidden"); $("resultView").classList.remove("hidden");
+      $("gameProgressFill").style.width = "100%";
+      const accuracy = game.attempts ? Math.round(game.correct/game.attempts*100) : 0;
+      $("resultIcon").textContent = game.mode === "final" ? "🏆" : accuracy >= 90 ? "🏆" : accuracy >= 70 ? "⚡" : "🧠";
+      $("resultTitle").textContent = game.mode === "review"
+        ? "¡Repaso completado!"
+        : game.mode === "final"
+          ? newlyCompleted ? "¡Gran Reto Final superado!" : "¡Reto final completado de nuevo!"
+          : newlyCompleted ? "¡Misión superada!" : "¡Entrenamiento terminado!";
+      $("resultText").textContent = game.mode === "final"
+        ? accuracy >= 90
+          ? "Has conectado los temas con un dominio extraordinario. Tu insignia final queda registrada."
+          : accuracy >= 70
+            ? "Superaste la prueba completa. Los repasos pendientes te ayudarán a perfeccionar los conceptos más difíciles."
+            : "Llegaste hasta el final. Revisa los conceptos programados y vuelve a intentarlo para elevar tu precisión."
+        : accuracy >= 90 ? "Tu dominio fue extraordinario." : accuracy >= 70 ? "Vas por muy buen camino." : "Los errores se convertirán en nuevos repasos.";
+      $("resultXp").textContent = `+${game.sessionXp}`;
+      $("resultAccuracy").textContent = `${accuracy}%`;
+      $("resultReviews").textContent = game.reviewed.size;
+      $("nextMissionBtn").classList.toggle("hidden", game.mode !== "module" || (game.moduleIndex !== null && game.moduleIndex >= modules.length - 1));
+      if (newlyCompleted) confetti();
+    }
+
+    function updateHUD() {
+      const user = getUser();
+      $("hudXp").textContent = user ? user.xp : 0;
+      $("hudStreak").textContent = game ? game.streak : 0;
+    }
+
+    function continueAdventure() {
+      const user = getUser();
+      if (!user) return;
+      const index = modules.findIndex(module => !user.completed.includes(module.id));
+      if (index === -1) return startFinalChallenge();
+      startModule(index);
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+    }
+
+    function toast(message) {
+      const el = $("toast"); el.textContent = message; el.classList.add("show");
+      clearTimeout(toast.timer); toast.timer = setTimeout(()=>el.classList.remove("show"), 2600);
+    }
+
+    function playTone(freq, duration) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain();
+        osc.frequency.value = freq; osc.type = "sine"; gain.gain.setValueAtTime(.055, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + duration);
+        osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + duration); osc.onended = () => ctx.close();
+      } catch (_) {}
+    }
+
+    function confetti() {
+      const box = $("confetti"); box.innerHTML = "";
+      const colors = ["#46e6ff","#ffd84d","#63ef9d","#ff6b7a","#a987ff"];
+      for (let i=0;i<70;i++) {
+        const p = document.createElement("i");
+        p.style.left = `${Math.random()*100}%`; p.style.background = colors[i%colors.length]; p.style.animationDelay = `${Math.random()*.5}s`; p.style.setProperty("--drift", `${-120+Math.random()*240}px`);
+        box.appendChild(p);
+      }
+      setTimeout(()=>box.innerHTML="",2400);
+    }
+
+    function visualSVG(type) {
+      const base = (content) => `<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustración educativa"><defs><filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="g1" x1="0" x2="1"><stop stop-color="#46e6ff"/><stop offset="1" stop-color="#a987ff"/></linearGradient><linearGradient id="g2" x1="0" x2="1"><stop stop-color="#ffd84d"/><stop offset="1" stop-color="#ff9e52"/></linearGradient></defs>${content}</svg>`;
+      const wire = `<path d="M55 145 H155 C175 145 175 95 195 95 H270" fill="none" stroke="#46e6ff" stroke-width="10" stroke-linecap="round"/><circle cx="55" cy="145" r="15" fill="#ffd84d"/><circle cx="285" cy="95" r="38" fill="none" stroke="#ffd84d" stroke-width="8"/><path d="M272 83l26 24M298 83l-26 24" stroke="#ffd84d" stroke-width="6"/><path d="M285 133v27" stroke="#ffd84d" stroke-width="7"/><path d="M255 160h60" stroke="#ffd84d" stroke-width="7"/>`;
+      const art = {
+        atom:`<circle cx="210" cy="130" r="24" fill="#ffd84d" filter="url(#glow)"/><ellipse cx="210" cy="130" rx="125" ry="48" fill="none" stroke="#46e6ff" stroke-width="4"/><ellipse cx="210" cy="130" rx="125" ry="48" transform="rotate(60 210 130)" fill="none" stroke="#a987ff" stroke-width="4"/><ellipse cx="210" cy="130" rx="125" ry="48" transform="rotate(-60 210 130)" fill="none" stroke="#63ef9d" stroke-width="4"/><circle cx="91" cy="116" r="9" fill="#46e6ff"/><circle cx="276" cy="219" r="9" fill="#a987ff"/><circle cx="280" cy="50" r="9" fill="#63ef9d"/>`,
+        charges:`<circle cx="135" cy="130" r="55" fill="#2b3474" stroke="#46e6ff" stroke-width="5"/><circle cx="285" cy="130" r="55" fill="#2b3474" stroke="#46e6ff" stroke-width="5"/><path d="M110 130h50M260 130h50" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M82 78L45 45M338 78l37-33" stroke="#ff6b7a" stroke-width="7" stroke-linecap="round"/><path d="M45 45l18 1M45 45l3 18M375 45l-18 1M375 45l-3 18" stroke="#ff6b7a" stroke-width="6"/>`,
+        static:`<path d="M155 210c-34-36-37-97-5-132 32-35 94-35 126 0 32 35 29 96-5 132z" fill="#a987ff"/><path d="M213 210v30" stroke="#fff" stroke-width="5"/><path d="M210 65l-13-26M234 68l18-24M184 73l-29-18" stroke="#ffd84d" stroke-width="6" stroke-linecap="round"/><path d="M77 170c16-32 35-52 60-66M62 187c32-15 53-18 76-16" stroke="#46e6ff" stroke-width="5" fill="none"/>`,
+        materials:`<rect x="45" y="80" width="140" height="100" rx="18" fill="#8a5d36"/><path d="M55 105h120M55 135h120M55 165h120" stroke="#d39a61" stroke-width="5"/><rect x="235" y="80" width="140" height="100" rx="18" fill="url(#g1)"/><path d="M250 100l110 60M250 160l110-60" stroke="rgba(255,255,255,.35)" stroke-width="8"/><text x="115" y="216" text-anchor="middle" fill="#fff" font-size="18">AISLANTE</text><text x="305" y="216" text-anchor="middle" fill="#fff" font-size="18">CONDUCTOR</text>`,
+        wire:`<path d="M35 130h350" stroke="#f07d3f" stroke-width="28" stroke-linecap="round"/><path d="M35 130h350" stroke="#46e6ff" stroke-width="9" stroke-dasharray="8 11" stroke-linecap="round"/><circle cx="65" cy="130" r="9" fill="#ffd84d"/><circle cx="120" cy="130" r="9" fill="#ffd84d"/><circle cx="175" cy="130" r="9" fill="#ffd84d"/><circle cx="230" cy="130" r="9" fill="#ffd84d"/><circle cx="285" cy="130" r="9" fill="#ffd84d"/><circle cx="340" cy="130" r="9" fill="#ffd84d"/>`,
+        insulation:`<path d="M40 130h340" stroke="#ff9e52" stroke-width="38" stroke-linecap="round"/><path d="M40 130h340" stroke="#d9b071" stroke-width="20" stroke-linecap="round"/><path d="M40 130h340" stroke="#46e6ff" stroke-width="5" stroke-dasharray="6 12"/><path d="M120 63v-28M300 63v-28" stroke="#63ef9d" stroke-width="6"/><text x="210" y="225" text-anchor="middle" fill="#fff" font-size="20">Metal protegido por plástico</text>`,
+        circuit: wire,
+        openCircuit:`${wire}<path d="M155 145l55-45" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="155" cy="145" r="9" fill="#fff"/><circle cx="230" cy="145" r="9" fill="#fff"/><path d="M230 145h55" stroke="#46e6ff" stroke-width="10"/>`,
+        short:`<rect x="60" y="70" width="80" height="120" rx="12" fill="#2b3474" stroke="#fff" stroke-width="4"/><path d="M140 105h150v35H140" fill="none" stroke="#ff6b7a" stroke-width="10"/><path d="M286 96l25 14-18 14 25 18-31 12" fill="none" stroke="#ffd84d" stroke-width="7"/><text x="210" y="228" text-anchor="middle" fill="#ff9e52" font-size="20">Camino de muy poca resistencia</text>`,
+        current:`<path d="M45 130h330" stroke="#3b4b92" stroke-width="32" stroke-linecap="round"/><g fill="#46e6ff" filter="url(#glow)"><circle cx="80" cy="130" r="10"/><circle cx="135" cy="130" r="10"/><circle cx="190" cy="130" r="10"/><circle cx="245" cy="130" r="10"/><circle cx="300" cy="130" r="10"/></g><path d="M320 85l50 45-50 45" fill="none" stroke="#ffd84d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>`,
+        ammeter:`<circle cx="210" cy="130" r="88" fill="#20275d" stroke="#46e6ff" stroke-width="7"/><text x="210" y="158" text-anchor="middle" font-size="80" font-weight="900" fill="#fff">A</text><path d="M45 130h77M298 130h77" stroke="#ffd84d" stroke-width="8"/>`,
+        water:`<path d="M45 110h330v45H45z" fill="#265bd5"/><g fill="#46e6ff"><circle cx="80" cy="132" r="7"/><circle cx="130" cy="132" r="7"/><circle cx="180" cy="132" r="7"/><circle cx="230" cy="132" r="7"/><circle cx="280" cy="132" r="7"/></g><path d="M330 85l45 47-45 47" fill="none" stroke="#ffd84d" stroke-width="8"/>`,
+        battery:`<rect x="100" y="75" width="220" height="115" rx="18" fill="#2b3474" stroke="#46e6ff" stroke-width="6"/><rect x="320" y="108" width="35" height="50" rx="6" fill="#ffd84d"/><text x="150" y="145" fill="#fff" font-size="58">−</text><text x="250" y="145" fill="#fff" font-size="50">+</text><path d="M105 210h210" stroke="#a987ff" stroke-width="7" stroke-linecap="round"/>`,
+        voltmeter:`<circle cx="210" cy="130" r="88" fill="#20275d" stroke="#a987ff" stroke-width="7"/><text x="210" y="158" text-anchor="middle" font-size="80" font-weight="900" fill="#fff">V</text><path d="M45 130h77M298 130h77" stroke="#ffd84d" stroke-width="8"/>`,
+        batteryCompare:`<rect x="55" y="92" width="105" height="105" rx="16" fill="#2b3474" stroke="#46e6ff" stroke-width="5"/><rect x="160" y="120" width="20" height="50" fill="#ffd84d"/><text x="108" y="155" text-anchor="middle" fill="#fff" font-size="27">1,5 V</text><rect x="245" y="65" width="110" height="145" rx="16" fill="#2b3474" stroke="#a987ff" stroke-width="5"/><rect x="355" y="110" width="22" height="58" fill="#ffd84d"/><text x="300" y="155" text-anchor="middle" fill="#fff" font-size="31">9 V</text>`,
+        resistor:`<path d="M35 130h85l18-35 28 70 28-70 28 70 28-70 22 35h100" fill="none" stroke="#ffd84d" stroke-width="8" stroke-linejoin="round"/><text x="210" y="225" text-anchor="middle" fill="#fff" font-size="33">R = Ω</text>`,
+        wireCompare:`<path d="M45 82h150" stroke="#46e6ff" stroke-width="22" stroke-linecap="round"/><path d="M45 178h330" stroke="#ff9e52" stroke-width="8" stroke-linecap="round"/><text x="225" y="62" fill="#fff" font-size="17">corto y grueso</text><text x="145" y="220" fill="#fff" font-size="17">largo y delgado</text>`,
+        ohm:`<path d="M210 34L70 220h280z" fill="#20275d" stroke="url(#g1)" stroke-width="7"/><path d="M110 132h200" stroke="#fff" stroke-width="5"/><path d="M210 132v70" stroke="#fff" stroke-width="5"/><text x="210" y="105" text-anchor="middle" fill="#ffd84d" font-size="48" font-weight="900">V</text><text x="150" y="188" text-anchor="middle" fill="#46e6ff" font-size="48" font-weight="900">I</text><text x="270" y="188" text-anchor="middle" fill="#a987ff" font-size="48" font-weight="900">R</text>`,
+        formula:`<text x="210" y="150" text-anchor="middle" fill="#fff" font-size="58" font-weight="900">V = I × R</text><path d="M75 185h270" stroke="url(#g2)" stroke-width="7" stroke-linecap="round"/>`,
+        resistanceFlow:`<path d="M40 130h115" stroke="#46e6ff" stroke-width="20"/><rect x="155" y="80" width="110" height="100" rx="15" fill="#ff9e52"/><path d="M265 130h115" stroke="#46e6ff" stroke-width="8"/><path d="M100 95l35 35-35 35M320 110l20 20-20 20" fill="none" stroke="#ffd84d" stroke-width="7"/>`,
+        series:`<path d="M45 130h70" stroke="#46e6ff" stroke-width="8"/><rect x="115" y="100" width="70" height="60" rx="12" fill="#ffd84d"/><path d="M185 130h50" stroke="#46e6ff" stroke-width="8"/><rect x="235" y="100" width="70" height="60" rx="12" fill="#a987ff"/><path d="M305 130h70" stroke="#46e6ff" stroke-width="8"/><text x="150" y="140" text-anchor="middle" fill="#202040" font-size="22" font-weight="900">R1</text><text x="270" y="140" text-anchor="middle" fill="#202040" font-size="22" font-weight="900">R2</text>`,
+        seriesBroken:`<path d="M45 130h80" stroke="#46e6ff" stroke-width="8"/><circle cx="165" cy="130" r="35" fill="none" stroke="#ffd84d" stroke-width="6"/><path d="M150 115l30 30M180 115l-30 30" stroke="#ffd84d" stroke-width="5"/><path d="M200 130h45" stroke="#46e6ff" stroke-width="8"/><path d="M245 130l55-45" stroke="#ff6b7a" stroke-width="8"/><circle cx="245" cy="130" r="8" fill="#fff"/><circle cx="320" cy="130" r="8" fill="#fff"/><path d="M320 130h55" stroke="#46e6ff" stroke-width="8"/>`,
+        parallel:`<path d="M65 60v140M355 60v140M65 85h290M65 175h290" stroke="#46e6ff" stroke-width="8"/><rect x="175" y="62" width="70" height="46" rx="10" fill="#ffd84d"/><rect x="175" y="152" width="70" height="46" rx="10" fill="#a987ff"/><text x="210" y="94" text-anchor="middle" fill="#222" font-size="18">R1</text><text x="210" y="184" text-anchor="middle" fill="#222" font-size="18">R2</text>`,
+        house:`<path d="M80 125l130-90 130 90v100H80z" fill="#27306c" stroke="#46e6ff" stroke-width="5"/><rect x="130" y="145" width="55" height="80" fill="#a987ff"/><circle cx="265" cy="153" r="28" fill="#ffd84d" filter="url(#glow)"/><path d="M210 35v190" stroke="rgba(255,255,255,.18)" stroke-width="4"/>`,
+        power:`<circle cx="210" cy="110" r="68" fill="#ffd84d" opacity=".95" filter="url(#glow)"/><path d="M175 177h70v32h-70z" fill="#888eb6"/><path d="M187 218h46" stroke="#fff" stroke-width="8"/><text x="210" y="130" text-anchor="middle" fill="#242440" font-size="45" font-weight="900">W</text>`,
+        meter:`<rect x="80" y="45" width="260" height="175" rx="22" fill="#242b65" stroke="#46e6ff" stroke-width="6"/><rect x="115" y="80" width="190" height="70" rx="10" fill="#c9f6c9"/><text x="210" y="128" text-anchor="middle" fill="#18391c" font-size="40" font-weight="900">12.4 kWh</text><circle cx="140" cy="185" r="16" fill="#ffd84d"/><circle cx="210" cy="185" r="16" fill="#a987ff"/><circle cx="280" cy="185" r="16" fill="#63ef9d"/>`,
+        acdc:`<path d="M30 70h360" stroke="#33407f" stroke-width="3"/><path d="M30 190h360" stroke="#33407f" stroke-width="3"/><path d="M40 70h330" stroke="#63ef9d" stroke-width="7"/><path d="M40 190c35-80 70-80 105 0s70 80 105 0 70-80 105 0" fill="none" stroke="#46e6ff" stroke-width="7"/><text x="35" y="55" fill="#63ef9d" font-size="19">DC</text><text x="35" y="175" fill="#46e6ff" font-size="19">AC</text>`,
+        led:`<path d="M40 130h110" stroke="#fff" stroke-width="7"/><path d="M150 85v90l85-45z" fill="#a987ff" stroke="#fff" stroke-width="4"/><path d="M240 82v96" stroke="#fff" stroke-width="7"/><path d="M240 130h140" stroke="#fff" stroke-width="7"/><path d="M225 73l35-35M250 87l35-35" stroke="#ffd84d" stroke-width="6"/><path d="M258 38l-7 18M258 38l-18 7M283 52l-7 18M283 52l-18 7" stroke="#ffd84d" stroke-width="4"/>`,
+        components:`<g transform="translate(35 45)"><rect width="110" height="55" rx="12" fill="#ffd84d"/><text x="55" y="35" text-anchor="middle" fill="#222" font-size="18">RESISTOR</text></g><g transform="translate(275 45)"><circle cx="55" cy="28" r="28" fill="#46e6ff"/><text x="55" y="35" text-anchor="middle" fill="#222" font-size="18">C</text></g><g transform="translate(35 160)"><path d="M0 28h35l35-25v50L35 28h75" fill="#a987ff"/><text x="55" y="80" text-anchor="middle" fill="#fff" font-size="17">DIODO</text></g><g transform="translate(275 150)"><circle cx="55" cy="40" r="36" fill="#63ef9d"/><path d="M55 5v70M20 40h70" stroke="#202040" stroke-width="6"/><text x="55" y="100" text-anchor="middle" fill="#fff" font-size="17">TRANSISTOR</text></g>`,
+        capacitor:`<path d="M40 130h130M250 130h130" stroke="#fff" stroke-width="8"/><path d="M170 55v150M250 55v150" stroke="#46e6ff" stroke-width="10"/><path d="M190 90c15 8 25 20 40 0M190 130c15 8 25 20 40 0M190 170c15 8 25 20 40 0" fill="none" stroke="#ffd84d" stroke-width="5"/>`,
+        diode:`<path d="M40 130h120" stroke="#fff" stroke-width="8"/><path d="M160 75v110l100-55z" fill="#a987ff" stroke="#fff" stroke-width="4"/><path d="M265 68v124" stroke="#fff" stroke-width="8"/><path d="M265 130h115" stroke="#fff" stroke-width="8"/>`,
+        transistor:`<circle cx="210" cy="130" r="78" fill="#26306b" stroke="#63ef9d" stroke-width="6"/><path d="M80 130h90M170 78v104M170 100l92-52M170 160l92 52" stroke="#fff" stroke-width="7"/><path d="M236 187l26 25-2-35" fill="#ffd84d"/>`,
+        magnet:`<path d="M135 65v95c0 67 150 67 150 0V65" fill="none" stroke="#ff6b7a" stroke-width="48"/><path d="M135 65v52M285 65v52" stroke="#d8e0ff" stroke-width="50"/><text x="135" y="85" text-anchor="middle" fill="#222" font-size="24" font-weight="900">N</text><text x="285" y="85" text-anchor="middle" fill="#222" font-size="24" font-weight="900">S</text>`,
+        motor:`<circle cx="210" cy="130" r="82" fill="#27306c" stroke="#46e6ff" stroke-width="7"/><text x="210" y="158" text-anchor="middle" fill="#fff" font-size="76" font-weight="900">M</text><path d="M292 130h70M58 130h70" stroke="#ffd84d" stroke-width="9"/><path d="M330 85l40 45-40 45" fill="none" stroke="#63ef9d" stroke-width="8"/>`,
+        generator:`<circle cx="205" cy="130" r="82" fill="#27306c" stroke="#a987ff" stroke-width="7"/><text x="205" y="155" text-anchor="middle" fill="#fff" font-size="62" font-weight="900">G</text><path d="M45 130h78M287 130h75" stroke="#ffd84d" stroke-width="8"/><path d="M310 92c32 20 32 56 0 76" fill="none" stroke="#46e6ff" stroke-width="6"/><path d="M325 168l-18 1 7-17" fill="#46e6ff"/>`,
+        relay:`<rect x="95" y="55" width="230" height="150" rx="20" fill="#27306c" stroke="#46e6ff" stroke-width="6"/><path d="M125 135c18-50 36 50 54 0s36 50 54 0" fill="none" stroke="#ffd84d" stroke-width="7"/><path d="M255 105v60M255 135l55-35" stroke="#fff" stroke-width="7" stroke-linecap="round"/><circle cx="255" cy="135" r="8" fill="#fff"/><circle cx="310" cy="100" r="8" fill="#63ef9d"/><circle cx="310" cy="170" r="8" fill="#ff6b7a"/><text x="210" y="235" text-anchor="middle" fill="#fff" font-size="20">SEÑAL PEQUEÑA · CARGA CONTROLADA</text>`,
+        transformer:`<path d="M105 70c-35 0-35 25 0 25s35 25 0 25-35 25 0 25 35 25 0 25" fill="none" stroke="#46e6ff" stroke-width="9"/><path d="M315 70c-35 0-35 25 0 25s35 25 0 25-35 25 0 25 35 25 0 25" fill="none" stroke="#a987ff" stroke-width="9"/><path d="M185 55v155M235 55v155" stroke="#ffd84d" stroke-width="10"/><path d="M35 120h45M340 120h45" stroke="#fff" stroke-width="8"/><text x="210" y="240" text-anchor="middle" fill="#fff" font-size="20">DOS BOBINAS · CAMPO VARIABLE</text>`,
+        batteries:`<rect x="50" y="88" width="130" height="90" rx="15" fill="#27306c" stroke="#46e6ff" stroke-width="5"/><rect x="180" y="112" width="22" height="42" fill="#ffd84d"/><rect x="220" y="88" width="130" height="90" rx="15" fill="#27306c" stroke="#a987ff" stroke-width="5"/><rect x="350" y="112" width="22" height="42" fill="#ffd84d"/><text x="210" y="225" text-anchor="middle" fill="#fff" font-size="20">Voltaje · capacidad · autonomía</text>`,
+        batterySeries:`<rect x="45" y="95" width="120" height="80" rx="12" fill="#27306c" stroke="#46e6ff" stroke-width="5"/><rect x="165" y="115" width="20" height="40" fill="#ffd84d"/><path d="M185 135h45" stroke="#fff" stroke-width="7"/><rect x="230" y="95" width="120" height="80" rx="12" fill="#27306c" stroke="#46e6ff" stroke-width="5"/><rect x="350" y="115" width="20" height="40" fill="#ffd84d"/><text x="210" y="225" text-anchor="middle" fill="#ffd84d" font-size="28">1,5 V + 1,5 V = 3 V</text>`,
+        capacity:`<rect x="80" y="68" width="260" height="125" rx="20" fill="#27306c" stroke="#63ef9d" stroke-width="6"/><rect x="340" y="104" width="30" height="52" fill="#ffd84d"/><text x="210" y="125" text-anchor="middle" fill="#fff" font-size="38" font-weight="900">2000 mAh</text><text x="210" y="168" text-anchor="middle" fill="#63ef9d" font-size="21">capacidad</text>`,
+        multimeter:`<rect x="120" y="35" width="180" height="195" rx="22" fill="#ff9e52"/><rect x="145" y="60" width="130" height="55" rx="8" fill="#ccf5cf"/><text x="210" y="98" text-anchor="middle" fill="#18391c" font-size="28">12.00</text><circle cx="210" cy="160" r="34" fill="#2a2f64"/><circle cx="168" cy="210" r="8" fill="#111"/><circle cx="252" cy="210" r="8" fill="#d33"/><path d="M168 210c-60 15-65 35-80 35M252 210c60 15 65 35 80 35" stroke="#fff" stroke-width="5" fill="none"/>`,
+        voltageMeasure:`<rect x="65" y="95" width="130" height="90" rx="15" fill="#27306c"/><rect x="195" y="120" width="25" height="42" fill="#ffd84d"/><circle cx="315" cy="140" r="55" fill="#20275d" stroke="#a987ff" stroke-width="6"/><text x="315" y="158" text-anchor="middle" fill="#fff" font-size="48">V</text><path d="M275 105c-35-40-80-38-150-20M275 175c-35 42-80 40-150 25" fill="none" stroke="#46e6ff" stroke-width="5"/>`,
+        currentMeasure:`<path d="M45 130h95" stroke="#46e6ff" stroke-width="8"/><circle cx="210" cy="130" r="55" fill="#20275d" stroke="#ffd84d" stroke-width="6"/><text x="210" y="150" text-anchor="middle" fill="#fff" font-size="48">A</text><path d="M265 130h110" stroke="#46e6ff" stroke-width="8"/>`,
+        ohmMeasure:`<circle cx="210" cy="115" r="72" fill="#20275d" stroke="#63ef9d" stroke-width="6"/><text x="210" y="140" text-anchor="middle" fill="#fff" font-size="58">Ω</text><path d="M110 215h200" stroke="#ff6b7a" stroke-width="7"/><text x="210" y="246" text-anchor="middle" fill="#ff9e52" font-size="18">CIRCUITO SIN ENERGÍA</text>`,
+        homeWires:`<path d="M80 45v170M210 45v170M340 45v170" stroke-width="16" stroke-linecap="round"/><path d="M80 45v170" stroke="#9a5b35" stroke-width="16"/><path d="M210 45v170" stroke="#5f8fe8" stroke-width="16"/><path d="M340 45v170" stroke="#63ef9d" stroke-width="16"/><text x="80" y="240" text-anchor="middle" fill="#fff">FASE</text><text x="210" y="240" text-anchor="middle" fill="#fff">NEUTRO</text><text x="340" y="240" text-anchor="middle" fill="#fff">TIERRA</text>`,
+        ground:`<path d="M210 40v115M135 155h150M160 185h100M185 215h50" stroke="#63ef9d" stroke-width="10" stroke-linecap="round"/><path d="M80 80h70v110H80z" fill="#27306c" stroke="#fff" stroke-width="5"/><path d="M150 130h60" stroke="#ff6b7a" stroke-width="7" stroke-dasharray="8 8"/>`,
+        protection:`<path d="M210 35l120 45v70c0 52-46 89-120 115-74-26-120-63-120-115V80z" fill="#27306c" stroke="#63ef9d" stroke-width="7"/><path d="M155 140l35 35 75-85" fill="none" stroke="#ffd84d" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>`,
+        breaker:`<rect x="110" y="40" width="200" height="185" rx="18" fill="#eee"/><rect x="165" y="75" width="90" height="100" rx="15" fill="#343a72"/><path d="M210 95v58" stroke="#ff6b7a" stroke-width="15" stroke-linecap="round"/><text x="210" y="210" text-anchor="middle" fill="#222" font-size="19">TERMOMAGNÉTICO</text>`,
+        differential:`<rect x="90" y="40" width="240" height="185" rx="18" fill="#eee"/><rect x="130" y="74" width="70" height="98" rx="12" fill="#343a72"/><circle cx="258" cy="122" r="25" fill="#46e6ff"/><text x="258" y="130" text-anchor="middle" fill="#111" font-size="18">T</text><text x="210" y="211" text-anchor="middle" fill="#222" font-size="18">DIFERENCIAL</text>`,
+        overload:`<rect x="60" y="105" width="135" height="80" rx="15" fill="#eee"/><circle cx="105" cy="145" r="12" fill="#222"/><circle cx="150" cy="145" r="12" fill="#222"/><path d="M195 145h75" stroke="#ff6b7a" stroke-width="14"/><path d="M270 145c35-60 68-30 83-75M270 145c35 60 68 30 83 75" fill="none" stroke="#ffd84d" stroke-width="9"/><path d="M330 88l18-35M348 115l32-18M330 202l18 35" stroke="#ff6b7a" stroke-width="7"/>`,
+        signals:`<path d="M30 75h360" stroke="#33407f" stroke-width="3"/><path d="M40 75c30-45 55 45 85 0s55 45 85 0 55 45 85 0 55 45 85 0" fill="none" stroke="#46e6ff" stroke-width="7"/><path d="M40 205v-55h65v55h65v-55h65v55h65v-55h65" fill="none" stroke="#ffd84d" stroke-width="7"/><text x="40" y="42" fill="#46e6ff">ANALÓGICA</text><text x="40" y="242" fill="#ffd84d">DIGITAL</text>`,
+        binary:`<rect x="55" y="65" width="130" height="130" rx="22" fill="#26306b" stroke="#46e6ff" stroke-width="6"/><rect x="235" y="65" width="130" height="130" rx="22" fill="#26306b" stroke="#ffd84d" stroke-width="6"/><text x="120" y="157" text-anchor="middle" fill="#46e6ff" font-size="80" font-weight="900">0</text><text x="300" y="157" text-anchor="middle" fill="#ffd84d" font-size="80" font-weight="900">1</text>`,
+        safety:`<path d="M210 30L65 225h290z" fill="#ffd84d" stroke="#ff9e52" stroke-width="7"/><path d="M226 72l-55 72h42l-24 70 70-98h-42z" fill="#242440"/><text x="210" y="250" text-anchor="middle" fill="#fff" font-size="18">DESENERGIZA · VERIFICA · PROTEGE</text>`,
+        wetHands:`<path d="M120 190c-15-60 0-120 28-120 15 0 17 20 17 38 0-32 5-61 24-61 20 0 20 28 20 61 0-29 5-50 23-50 22 0 22 28 22 59 0-23 8-39 24-39 30 0 25 65 15 112z" fill="#d7a47c"/><path d="M80 50c0 20-28 36-28 58a28 28 0 0056 0c0-22-28-38-28-58z" fill="#46e6ff"/><path d="M300 45l-36 55h30l-25 58 70-80h-34l24-33z" fill="#ffd84d"/>`,
+        fuse:`<path d="M35 130h105" stroke="#fff" stroke-width="8"/><rect x="140" y="95" width="140" height="70" rx="18" fill="none" stroke="#46e6ff" stroke-width="6"/><path d="M155 130c20-45 38 45 58 0s38 45 58 0" fill="none" stroke="#ffd84d" stroke-width="7"/><path d="M280 130h105" stroke="#fff" stroke-width="8"/>
+      `};
+      return base(art[type] || art.circuit);
+    }
+
+    $("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = $("studentName").value;
+      const course = $("studentCourse").value;
+      const pin = $("studentPin").value;
+      if (!/^\d{4}$/.test(pin)) { $("loginError").textContent = "El PIN debe tener exactamente 4 números."; return; }
+      const submit = e.submitter || $("loginForm").querySelector("button[type=submit]");
+      const previous = submit.textContent;
+      submit.disabled = true; submit.textContent = "Conectando…";
+      $("loginError").textContent = "";
+      const result = await login(name, course, pin);
+      submit.disabled = false; submit.textContent = previous;
+      $("loginError").textContent = result.ok ? "" : result.message;
+      if (result.ok) {
+        renderDashboard();
+        if (result.warning) toast(result.warning);
+      }
+    });
+
+    $("logoutBtn").addEventListener("click", logout);
+    $("continueBtn").addEventListener("click", continueAdventure);
+    $("reviewBtn").addEventListener("click", startReview);
+    $("startQuestionsBtn").addEventListener("click", nextQuestion);
+    $("nextQuestionBtn").addEventListener("click", nextQuestion);
+    $("quitGameBtn").addEventListener("click", renderDashboard);
+    $("backDashboardBtn").addEventListener("click", renderDashboard);
+    $("nextMissionBtn").addEventListener("click", () => {
+      const next = Math.min(modules.length - 1, (game?.moduleIndex ?? -1) + 1);
+      startModule(next);
+    });
+
+    $("dataBtn").addEventListener("click", () => $("dataModal").classList.remove("hidden"));
+    $("closeModalBtn").addEventListener("click", () => $("dataModal").classList.add("hidden"));
+    $("dataModal").addEventListener("click", e => { if (e.target === $("dataModal")) $("dataModal").classList.add("hidden"); });
+    $("exportBtn").addEventListener("click", () => { $("dataBox").value = btoa(unescape(encodeURIComponent(JSON.stringify(db)))); $("dataBox").select(); toast("Respaldo generado. Cópialo y guárdalo."); });
+    $("importBtn").addEventListener("click", () => {
+      try {
+        const imported = JSON.parse(decodeURIComponent(escape(atob($("dataBox").value.trim()))));
+        if (!imported || !imported.users) throw new Error("Formato inválido");
+        db = imported; saveDB(); toast("Progreso importado correctamente."); $("dataModal").classList.add("hidden");
+        if (!db.users[currentUserId]) logout(); else renderDashboard();
+      } catch (_) { toast("No se pudo importar: revisa el texto del respaldo."); }
+    });
+    $("resetBtn").addEventListener("click", async () => {
+      const user = getUser(); if (!user) return;
+      if (!confirm(`¿Borrar definitivamente el progreso de ${user.name}?`)) return;
+      if (cloudEnabled() && cloudPinHash) {
+        try { await cloudRequest("eq_reset", {p_id:user.id, p_pin_hash:cloudPinHash}); }
+        catch (error) { return toast("No se pudo borrar el perfil global. Revisa la conexión."); }
+      }
+      delete db.users[user.id];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      $("dataModal").classList.add("hidden"); logout();
+    });
+
+    if (currentUserId && db.users[currentUserId]) renderDashboard(); else showScreen("login");
+  </script>
+</body>
+</html>
